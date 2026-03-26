@@ -167,7 +167,7 @@ def main() -> None:
     parser.add_argument(
         "--metrics-path",
         type=Path,
-        default=Path("artifacts/repro_plots/first_work_visual_metrics_ce.json"),
+        default=Path("artifacts/plots/first_work_visual_metrics_ce.json"),
     )
     args = parser.parse_args()
 
