@@ -15,7 +15,7 @@ from pathlib import Path
 import numpy as np
 import tensorflow as tf
 
-from HopfLayer import HopfLayer, set_seed
+from src.HopfLayer import HopfLayer, set_seed
 
 
 def labels_from_y(y: np.ndarray) -> np.ndarray:
