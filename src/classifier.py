@@ -1,14 +1,9 @@
-"""Reproduce DONN signal generation/classification experiment (Table 1).
+"""Alternative reproduction for task 1 using explicit classification objective.
 
-This script trains a small DONN-style model on:
-  artifacts/signal_generation/X.npy
-  artifacts/signal_generation/Y.npy
-
-Reference from paper (Table 1):
-  Initial frequency range of oscillators: [0.1-20 Hz]
-  Architecture: Linear(20) -> Hopf(20) -> tanh(20) -> output(2)
-  Input type to oscillators: I(t)
-  Frequency of oscillators: Not trained
+Key difference from `donn_signal_classification.py`:
+  - trains with sparse categorical cross-entropy on class labels
+  - class labels are derived from ramp targets in Y
+  - predicts class logits directly (instead of MSE over ramp sequences)
 """
 
 from __future__ import annotations
@@ -16,151 +11,85 @@ from __future__ import annotations
 import argparse
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Tuple
 
 import numpy as np
 import tensorflow as tf
 
-
-def set_seed(seed: int) -> None:
-    np.random.seed(seed)
-    tf.random.set_seed(seed)
+from HopfLayer import HopfLayer, set_seed
 
 
-@tf.function
-def _real_part(r: tf.Tensor, phi: tf.Tensor) -> tf.Tensor:
-    return r * tf.math.cos(phi)
+def labels_from_y(y: np.ndarray) -> np.ndarray:
+    """Convert ramp targets [N, T, 2] to class labels [N]."""
+    return np.argmax(np.sum(y, axis=1), axis=1).astype(np.int64)
 
 
-@tf.function
-def _imag_part(r: tf.Tensor, phi: tf.Tensor) -> tf.Tensor:
-    return r * tf.math.sin(phi)
-
-
-@tf.function
-def _hopf_rollout(
-    x_r: tf.Tensor,
-    x_i: tf.Tensor,
-    omegas: tf.Tensor,
-    num_steps: int,
-    dt: float,
-    mu: float,
-    beta: float,
-    input_scale: float,
-) -> Tuple[tf.Tensor, tf.Tensor]:
-    """Euler integration for a batch of Hopf oscillators."""
-    batch_size = tf.shape(x_r)[0]
-    dim = tf.shape(x_r)[2]
-
-    r_t = tf.ones((batch_size, dim), dtype=tf.float32)
-    phi_t = tf.zeros((batch_size, dim), dtype=tf.float32)
-
-    r_arr = tf.TensorArray(dtype=tf.float32, size=num_steps)
-    phi_arr = tf.TensorArray(dtype=tf.float32, size=num_steps)
-
-    for t in tf.range(num_steps):
-        input_r = input_scale * x_r[:, t, :] * tf.math.cos(phi_t)
-        input_phi = input_scale * x_i[:, t, :] * tf.math.sin(phi_t)
-        r_t = r_t + ((mu - beta * tf.square(r_t)) * r_t + input_r) * dt
-        phi_t = phi_t + (omegas - input_phi) * dt
-        r_arr = r_arr.write(t, r_t)
-        phi_arr = phi_arr.write(t, phi_t)
-
-    r = tf.transpose(r_arr.stack(), [1, 0, 2])
-    phi = tf.transpose(phi_arr.stack(), [1, 0, 2])
-    return r, phi
-
-
-class HopfLayer(tf.keras.layers.Layer):
-    def __init__(
-        self,
-        units: int,
-        num_steps: int,
-        min_omega_hz: float = 0.1,
-        max_omega_hz: float = 20.0,
-        dt: float = 0.001,
-        mu: float = 1.0,
-        beta: float = 0.01,
-        input_scale: float = 0.1,
-        **kwargs,
-    ) -> None:
-        super().__init__(**kwargs)
-        self.units = units
-        self.num_steps = num_steps
-        self.dt = dt
-        self.mu = mu
-        self.beta = beta
-        self.input_scale = input_scale
-
-        hz = tf.linspace(min_omega_hz, max_omega_hz, units)
-        self.omegas = tf.cast(tf.expand_dims(hz * (2.0 * np.pi), 0), tf.float32)
-
-    def call(self, x_r: tf.Tensor, x_i: tf.Tensor) -> Tuple[tf.Tensor, tf.Tensor]:
-        r, phi = _hopf_rollout(
-            x_r=x_r,
-            x_i=x_i,
-            omegas=self.omegas,
-            num_steps=self.num_steps,
-            dt=self.dt,
-            mu=self.mu,
-            beta=self.beta,
-            input_scale=self.input_scale,
-        )
-        return _real_part(r, phi), _imag_part(r, phi)
-
-
-class DONNClassifier(tf.keras.Model):
-    """Linear(20) -> Hopf(20) -> tanh(20) -> output(2), time-distributed."""
+class DONNClassifierCE(tf.keras.Model):
+    """Linear -> Hopf -> tanh projection -> temporal pooling -> class logits."""
 
     def __init__(
         self,
         num_steps: int,
         units: int = 20,
-        out_dim: int = 2,
+        proj_dim: int = 32,
+        num_classes: int = 2,
         use_linear_frontend: bool = True,
+        dropout: float = 0.0,
+        hopf_input_scale: float = 0.1,
     ) -> None:
         super().__init__()
         self.units = units
         self.use_linear_frontend = use_linear_frontend
+
         self.in_r = tf.keras.layers.Dense(units, activation="relu")
         self.in_i = tf.keras.layers.Dense(units, activation="relu")
-        self.hopf = HopfLayer(units=units, num_steps=num_steps)
-        self.tanh = tf.keras.layers.Dense(units, activation="tanh")
-        self.out = tf.keras.layers.Dense(out_dim, activation="linear")
+        self.hopf = HopfLayer(units=units, num_steps=num_steps, input_scale=hopf_input_scale)
+
+        self.proj = tf.keras.layers.Dense(proj_dim, activation="tanh")
+        self.pool = tf.keras.layers.GlobalAveragePooling1D()
+        self.dropout = tf.keras.layers.Dropout(dropout)
+        self.head = tf.keras.layers.Dense(num_classes, activation="linear")
+
         self.td_in_r = tf.keras.layers.TimeDistributed(self.in_r)
         self.td_in_i = tf.keras.layers.TimeDistributed(self.in_i)
-        self.td_tanh = tf.keras.layers.TimeDistributed(self.tanh)
-        self.td_out = tf.keras.layers.TimeDistributed(self.out)
+        self.td_proj = tf.keras.layers.TimeDistributed(self.proj)
 
-    def call(self, x: tf.Tensor) -> tf.Tensor:
+    def call(self, x: tf.Tensor, training: bool = False) -> tf.Tensor:
         if self.use_linear_frontend:
             x_r = self.td_in_r(x)
             x_i = self.td_in_i(x)
         else:
             x_r = tf.tile(x, [1, 1, self.units])
             x_i = tf.zeros_like(x_r)
+
         z_r, z_i = self.hopf(x_r, x_i)
         z = tf.concat([z_r, z_i], axis=2)
-        h = self.td_tanh(z)
-        y = self.td_out(h)
-        return y
+        h = self.td_proj(z)
+        pooled = self.pool(h)
+        pooled = self.dropout(pooled, training=training)
+        logits = self.head(pooled)
+        return logits
 
 
 @dataclass
 class Metrics:
-    test_mse: float
     test_acc: float
-    val_mse: float
+    val_acc: float
+    test_loss: float
 
 
 def train_one_run(
     x: np.ndarray,
-    y: np.ndarray,
+    y_cls: np.ndarray,
     seed: int,
     epochs: int,
     batch_size: int,
     test_ratio: float,
+    learning_rate: float,
     use_linear_frontend: bool,
+    units: int,
+    proj_dim: int,
+    dropout: float,
+    hopf_input_scale: float,
 ) -> Metrics:
     set_seed(seed)
 
@@ -172,18 +101,22 @@ def train_one_run(
     test_idx = idx[:n_test]
     train_idx = idx[n_test:]
 
-    x_train, y_train = x[train_idx], y[train_idx]
-    x_test, y_test = x[test_idx], y[test_idx]
+    x_train, y_train = x[train_idx], y_cls[train_idx]
+    x_test, y_test = x[test_idx], y_cls[test_idx]
 
-    model = DONNClassifier(
+    model = DONNClassifierCE(
         num_steps=x.shape[1],
-        units=20,
-        out_dim=y.shape[2],
+        units=units,
+        proj_dim=proj_dim,
+        num_classes=2,
         use_linear_frontend=use_linear_frontend,
+        dropout=dropout,
+        hopf_input_scale=hopf_input_scale,
     )
     model.compile(
-        optimizer=tf.keras.optimizers.Adam(learning_rate=1e-2),
-        loss="mse",
+        optimizer=tf.keras.optimizers.Adam(learning_rate=learning_rate),
+        loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
+        metrics=[tf.keras.metrics.SparseCategoricalAccuracy(name="acc")],
     )
 
     history = model.fit(
@@ -195,18 +128,15 @@ def train_one_run(
         verbose=0,
     )
 
-    pred = model.predict(x_test, batch_size=batch_size, verbose=0)
-    test_mse = float(np.mean((pred - y_test) ** 2))
-
-    pred_cls = np.argmax(np.sum(pred, axis=1), axis=1)
-    true_cls = np.argmax(np.sum(y_test, axis=1), axis=1)
-    test_acc = float(np.mean(pred_cls == true_cls))
-    pred_hist = np.bincount(pred_cls, minlength=y.shape[2])
-    true_hist = np.bincount(true_cls, minlength=y.shape[2])
+    test_loss, test_acc = model.evaluate(x_test, y_test, batch_size=batch_size, verbose=0)
+    logits = model.predict(x_test, batch_size=batch_size, verbose=0)
+    pred_cls = np.argmax(logits, axis=1)
+    true_hist = np.bincount(y_test, minlength=2)
+    pred_hist = np.bincount(pred_cls, minlength=2)
     print(f"  class_hist true={true_hist.tolist()} pred={pred_hist.tolist()}")
 
-    val_mse = float(history.history["val_loss"][-1])
-    return Metrics(test_mse=test_mse, test_acc=test_acc, val_mse=val_mse)
+    val_acc = float(history.history["val_acc"][-1])
+    return Metrics(test_acc=float(test_acc), val_acc=val_acc, test_loss=float(test_loss))
 
 
 def main() -> None:
@@ -218,42 +148,60 @@ def main() -> None:
     parser.add_argument("--batch-size", type=int, default=32)
     parser.add_argument("--test-ratio", type=float, default=0.2)
     parser.add_argument("--seed", type=int, default=42)
+    parser.add_argument("--learning-rate", type=float, default=1e-3)
+    parser.add_argument("--units", type=int, default=20)
+    parser.add_argument("--proj-dim", type=int, default=32)
+    parser.add_argument("--dropout", type=float, default=0.0)
+    parser.add_argument(
+        "--hopf-input-scale",
+        type=float,
+        default=5.0,
+        help="Input coupling scale for Hopf layer (higher values improve class separability in this setup).",
+    )
     parser.add_argument(
         "--use-linear-frontend",
         action="store_true",
-        help="Use learnable linear frontend before Hopf layer (paper table says Linear(20)).",
+        help="Use learnable linear frontend before Hopf layer.",
     )
     args = parser.parse_args()
 
     x = np.load(args.x_path).astype(np.float32)
     y = np.load(args.y_path).astype(np.float32)
+    y_cls = labels_from_y(y)
 
-    print(f"Loaded X={x.shape}, Y={y.shape}")
-    all_metrics = []
+    print(f"Loaded X={x.shape}, Y={y.shape}, y_cls={y_cls.shape}")
+    print(f"Label histogram: {np.bincount(y_cls, minlength=2).tolist()}")
+
+    all_metrics: list[Metrics] = []
     for run in range(args.runs):
         seed = args.seed + run
         m = train_one_run(
             x=x,
-            y=y,
+            y_cls=y_cls,
             seed=seed,
             epochs=args.epochs,
             batch_size=args.batch_size,
             test_ratio=args.test_ratio,
+            learning_rate=args.learning_rate,
             use_linear_frontend=args.use_linear_frontend,
+            units=args.units,
+            proj_dim=args.proj_dim,
+            dropout=args.dropout,
+            hopf_input_scale=args.hopf_input_scale,
         )
         all_metrics.append(m)
         print(
             f"Run {run + 1}/{args.runs} seed={seed}: "
-            f"test_acc={m.test_acc:.4f}, test_mse={m.test_mse:.6f}, val_mse={m.val_mse:.6f}"
+            f"test_acc={m.test_acc:.4f}, test_loss={m.test_loss:.6f}, val_acc={m.val_acc:.4f}"
         )
 
     acc = np.array([m.test_acc for m in all_metrics])
-    mse = np.array([m.test_mse for m in all_metrics])
-    val_mse = np.array([m.val_mse for m in all_metrics])
+    loss = np.array([m.test_loss for m in all_metrics])
+    val_acc = np.array([m.val_acc for m in all_metrics])
     print("---- Summary ----")
-    print(f"Test accuracy mean±std: {acc.mean():.4f} ± {acc.std():.4f}")
-    print(f"Test MSE mean±std: {mse.mean():.6f} ± {mse.std():.6f}")
-    print(f"Val  MSE mean±std: {val_mse.mean():.6f} ± {val_mse.std():.6f}")
+    print(f"Test accuracy mean+/-std: {acc.mean():.4f} +/- {acc.std():.4f}")
+    print(f"Test loss mean+/-std: {loss.mean():.6f} +/- {loss.std():.6f}")
+    print(f"Val  acc  mean+/-std: {val_acc.mean():.4f} +/- {val_acc.std():.4f}")
 
 
 if __name__ == "__main__":
