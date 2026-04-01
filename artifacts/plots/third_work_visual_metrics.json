@@ -1,0 +1,34 @@
+{
+  "integration": {
+    "task": "integration",
+    "test_mse": 0.002877546241506934,
+    "val_mse": 0.0038242960206319315,
+    "baseline_mse": 7.512718745716906e-12,
+    "test_corr": 0.8619435735497248
+  },
+  "differentiation": {
+    "task": "differentiation",
+    "test_mse": 14.233712196350098,
+    "val_mse": 12.9780802959894,
+    "baseline_mse": 0.00025585037656128407,
+    "test_corr": 0.9934650792155569
+  },
+  "_meta": {
+    "epochs": 30,
+    "batch_size": 16,
+    "seed": 42,
+    "learning_rate": 0.001,
+    "units": 20,
+    "hopf_input_scale": 5.0,
+    "readout_channels": 48,
+    "temporal_kernel": 33,
+    "use_linear_frontend": true,
+    "use_input_skip": true,
+    "num_samples": 200,
+    "dt": 0.001,
+    "duration": 1.0,
+    "num_components": 5,
+    "fmin_hz": 1.0,
+    "fmax_hz": 5.0
+  }
+}

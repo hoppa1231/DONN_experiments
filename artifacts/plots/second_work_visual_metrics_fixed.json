@@ -1,0 +1,16 @@
+{
+  "test_mse": 0.05894375219941139,
+  "val_mse": 0.05684288963675499,
+  "epochs": 60,
+  "seed": 42,
+  "use_linear_frontend": true,
+  "use_input_skip": true,
+  "hopf_input_scale": 10.0,
+  "learning_rate": 0.01,
+  "units": 40,
+  "readout_channels": 64,
+  "temporal_kernel": 0,
+  "num_samples": 400,
+  "dt": 0.01,
+  "duration": 1.0
+}
