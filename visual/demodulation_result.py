@@ -34,35 +34,35 @@ def plot_report(
     ax_b1 = fig.add_subplot(gs[1, 1])
 
     ax_a0.plot(t, y_test[0, :, 0], color="tab:orange", lw=1.3)
-    ax_a0.set_title("A1) Message signal m(t)")
-    ax_a0.set_xlabel("Time, s")
-    ax_a0.set_ylabel("Amplitude")
+    ax_a0.set_title("A1) Сообщение m(t)")
+    ax_a0.set_xlabel("Время, с")
+    ax_a0.set_ylabel("Амплитуда")
     ax_a0.grid(alpha=0.25)
 
     ax_a1.plot(t, x_test[0, :, 0], color="tab:purple", lw=1.3)
-    ax_a1.set_title("A2) Modulated input M(t)")
-    ax_a1.set_xlabel("Time, s")
-    ax_a1.set_ylabel("Amplitude")
+    ax_a1.set_title("A2) Модулированный вход M(t)")
+    ax_a1.set_xlabel("Время, с")
+    ax_a1.set_ylabel("Амплитуда")
     ax_a1.grid(alpha=0.25)
 
-    ax_b0.plot(t, y_test[0, :, 0], color="tab:orange", lw=1.4, label="target m(t)")
-    ax_b0.plot(t, pred[0, :, 0], color="tab:blue", lw=1.4, label="predicted m(t)")
-    ax_b0.set_title("B1) Demodulation result | sample 0")
-    ax_b0.set_xlabel("Time, s")
-    ax_b0.set_ylabel("Amplitude")
+    ax_b0.plot(t, y_test[0, :, 0], color="tab:orange", lw=1.4, label="цель m(t)")
+    ax_b0.plot(t, pred[0, :, 0], color="tab:blue", lw=1.4, label="предсказание m(t)")
+    ax_b0.set_title("B1) Результат демодуляции | пример 0")
+    ax_b0.set_xlabel("Время, с")
+    ax_b0.set_ylabel("Амплитуда")
     ax_b0.grid(alpha=0.25)
     ax_b0.legend(loc="upper right")
 
-    ax_b1.plot(t, y_test[1, :, 0], color="tab:orange", lw=1.4, label="target m(t)")
-    ax_b1.plot(t, pred[1, :, 0], color="tab:blue", lw=1.4, label="predicted m(t)")
-    ax_b1.set_title("B2) Demodulation result | sample 1")
-    ax_b1.set_xlabel("Time, s")
-    ax_b1.set_ylabel("Amplitude")
+    ax_b1.plot(t, y_test[1, :, 0], color="tab:orange", lw=1.4, label="цель m(t)")
+    ax_b1.plot(t, pred[1, :, 0], color="tab:blue", lw=1.4, label="предсказание m(t)")
+    ax_b1.set_title("B2) Результат демодуляции | пример 1")
+    ax_b1.set_xlabel("Время, с")
+    ax_b1.set_ylabel("Амплитуда")
     ax_b1.grid(alpha=0.25)
     ax_b1.legend(loc="upper right")
 
     fig.suptitle(
-        "Task 2 Visual Report (Amplitude Demodulation) | "
+        "Задача 2: визуальный отчёт (амплитудная демодуляция) | "
         f"test_mse={metrics['test_mse']:.6f}, val_mse={metrics['val_mse']:.6f}",
         fontsize=13,
     )

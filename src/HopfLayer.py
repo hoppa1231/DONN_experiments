@@ -67,6 +67,7 @@ class HopfLayer(tf.keras.layers.Layer):
         mu: float = 1.0,
         beta: float = 0.01,
         input_scale: float = 0.1,
+        trainable_omegas: bool = False,
         **kwargs,
     ) -> None:
         super().__init__(**kwargs)
@@ -76,9 +77,17 @@ class HopfLayer(tf.keras.layers.Layer):
         self.mu = mu
         self.beta = beta
         self.input_scale = input_scale
+        self.trainable_omegas = trainable_omegas
 
-        hz = tf.linspace(min_omega_hz, max_omega_hz, units)
-        self.omegas = tf.cast(tf.expand_dims(hz * (2.0 * np.pi), 0), tf.float32)
+        hz = np.linspace(min_omega_hz, max_omega_hz, units, dtype=np.float32)
+        omega_init = np.expand_dims(hz * (2.0 * np.pi), 0)
+        self.omegas = self.add_weight(
+            name="omegas",
+            shape=(1, units),
+            dtype=tf.float32,
+            initializer=tf.constant_initializer(omega_init),
+            trainable=trainable_omegas,
+        )
 
     def call(self, x_r: tf.Tensor, x_i: tf.Tensor) -> Tuple[tf.Tensor, tf.Tensor]:
         r, phi = _hopf_rollout(

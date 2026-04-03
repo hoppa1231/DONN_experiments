@@ -34,19 +34,20 @@ def plot_task_row(
 ) -> None:
     input_prefix, result_prefix, target_color = _task_labels(task)
     pred_color = "tab:blue" if task == "differentiation" else "tab:orange"
+    task_ru = "интегрирование" if task == "integration" else "дифференцирование"
 
     axes[0].plot(t, x_test[0, :, 0], color="tab:purple", lw=1.2)
-    axes[0].set_title(f"{input_prefix}1) {task.title()} input I(t)")
-    axes[0].set_xlabel("Time, s")
-    axes[0].set_ylabel("Amplitude")
+    axes[0].set_title(f"{input_prefix}1) Вход {task_ru} I(t)")
+    axes[0].set_xlabel("Время, с")
+    axes[0].set_ylabel("Амплитуда")
     axes[0].grid(alpha=0.25)
     axes[0].text(
         0.02,
         0.98,
         (
-            f"DONN test_mse={metrics['test_mse']:.4f}\n"
-            f"val_mse={metrics['val_mse']:.4f}\n"
-            f"baseline_mse={metrics['baseline_mse']:.6f}\n"
+            f"DONN test MSE={metrics['test_mse']:.4f}\n"
+            f"val MSE={metrics['val_mse']:.4f}\n"
+            f"базовый MSE={metrics['baseline_mse']:.6f}\n"
             f"corr={metrics['test_corr']:.4f}"
         ),
         transform=axes[0].transAxes,
@@ -57,19 +58,19 @@ def plot_task_row(
     )
 
     for sample_idx, ax in enumerate(axes[1:3]):
-        ax.plot(t, y_test[sample_idx, :, 0], color=target_color, lw=1.3, label="target O(t)")
-        ax.plot(t, pred[sample_idx, :, 0], color=pred_color, lw=1.3, label="DONN prediction")
+        ax.plot(t, y_test[sample_idx, :, 0], color=target_color, lw=1.3, label="цель O(t)")
+        ax.plot(t, pred[sample_idx, :, 0], color=pred_color, lw=1.3, label="предсказание DONN")
         ax.plot(
             t,
             baseline_pred[sample_idx, :, 0],
             color="0.35",
             lw=1.1,
             ls="--",
-            label="numeric baseline",
+            label="численный базовый метод",
         )
-        ax.set_title(f"{result_prefix}{sample_idx + 1}) {task.title()} result | sample {sample_idx}")
-        ax.set_xlabel("Time, s")
-        ax.set_ylabel("Amplitude")
+        ax.set_title(f"{result_prefix}{sample_idx + 1}) Результат {task_ru} | пример {sample_idx}")
+        ax.set_xlabel("Время, с")
+        ax.set_ylabel("Амплитуда")
         ax.grid(alpha=0.25)
         ax.legend(loc="upper right", fontsize=8)
 
@@ -95,9 +96,9 @@ def plot_report(
         )
 
     fig.suptitle(
-        "Task 3 Visual Report (Math Operators) | "
-        f"integration test_mse={results['integration']['metrics']['test_mse']:.4f}, "
-        f"differentiation test_mse={results['differentiation']['metrics']['test_mse']:.4f}",
+        "Задача 3: визуальный отчёт (математические операторы) | "
+        f"интегрирование test_mse={results['integration']['metrics']['test_mse']:.4f}, "
+        f"дифференцирование test_mse={results['differentiation']['metrics']['test_mse']:.4f}",
         fontsize=13,
     )
     out_path.parent.mkdir(parents=True, exist_ok=True)
