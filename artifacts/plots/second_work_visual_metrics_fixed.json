@@ -1,6 +1,6 @@
 {
-  "test_mse": 0.05894375219941139,
-  "val_mse": 0.05684288963675499,
+  "test_mse": 0.059553030878305435,
+  "val_mse": 0.0607149600982666,
   "epochs": 60,
   "seed": 42,
   "use_linear_frontend": true,

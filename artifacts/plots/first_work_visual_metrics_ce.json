@@ -1,17 +1,17 @@
 {
-  "test_acc": 0.9950000047683716,
-  "test_loss": 0.21950338780879974,
-  "plot_mse": 0.01427953876554966,
+  "test_acc": 0.9599999785423279,
+  "test_loss": 0.34769102931022644,
+  "plot_mse": 0.030868874862790108,
   "class_hist_true": [
     96,
     104
   ],
   "class_hist_pred": [
-    95,
-    105
+    88,
+    112
   ],
   "epochs": 20,
   "seed": 42,
-  "use_linear_frontend": false,
+  "use_linear_frontend": true,
   "hopf_input_scale": 5.0
 }

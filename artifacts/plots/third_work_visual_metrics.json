@@ -1,17 +1,17 @@
 {
   "integration": {
     "task": "integration",
-    "test_mse": 0.002877546241506934,
-    "val_mse": 0.0038242960206319315,
+    "test_mse": 0.00263839028775692,
+    "val_mse": 0.0031403188863804356,
     "baseline_mse": 7.512718745716906e-12,
-    "test_corr": 0.8619435735497248
+    "test_corr": 0.8745011180073787
   },
   "differentiation": {
     "task": "differentiation",
-    "test_mse": 14.233712196350098,
-    "val_mse": 12.9780802959894,
+    "test_mse": 16.719518661499023,
+    "val_mse": 16.78012384998771,
     "baseline_mse": 0.00025585037656128407,
-    "test_corr": 0.9934650792155569
+    "test_corr": 0.9929090390553829
   },
   "_meta": {
     "epochs": 30,

@@ -1,0 +1,17 @@
+{
+  "variant": "baseline_bilstm_control",
+  "test_acc": 0.576171875,
+  "val_acc": 0.5602605938911438,
+  "test_loss": 0.6918598413467407,
+  "train_samples": 1024,
+  "test_samples": 1024,
+  "epochs": 1,
+  "batch_size": 256,
+  "embed_dim": 100,
+  "lstm_units": 100,
+  "vocab_size": 35000,
+  "max_len": 500,
+  "seed": 42,
+  "learning_rate": 0.001,
+  "val_ratio": 0.3
+}
