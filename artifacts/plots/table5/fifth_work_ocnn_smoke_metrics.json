@@ -1,0 +1,48 @@
+{
+  "variant": "table5_ocnn_synthetic_smoke",
+  "is_ucf11_reproduction": false,
+  "reason_not_ucf11": "No local UCF11/UCF50 video dataset was found in artifacts/ or the configured external root.",
+  "local_ucf_candidates": [],
+  "article_dataset": "UCF11 YouTube Action dataset; article appendix points to Kaggle UCF50 mirror",
+  "article_train_val": {
+    "train": 1290,
+    "validation": 305
+  },
+  "article_num_frames": 50,
+  "article_frame_size": [
+    48,
+    48,
+    3
+  ],
+  "article_architecture": "2 x OCNN (3x3,40), flatten, output (2); initial frequency range [1-15 Hz], input type I(t), trainable oscillator frequencies",
+  "paper_reported_ocnn_val_acc": 0.9864,
+  "paper_text_reports_figure4_acc": 0.9975,
+  "paper_reported_val_mse": 0.0564,
+  "smoke_dataset": {
+    "num_samples": 48,
+    "num_frames": 12,
+    "frame_size": 24,
+    "square_size": 5,
+    "num_classes": 2
+  },
+  "filters": 4,
+  "epochs": 2,
+  "batch_size": 8,
+  "learning_rate": 0.0001,
+  "seed": 42,
+  "total_params": 1394,
+  "history": {
+    "loss": [
+      0.9491468071937561,
+      0.8410923480987549
+    ],
+    "val_loss": [
+      0.9817374348640442,
+      0.8799130320549011
+    ]
+  },
+  "val_acc": 0.3333333333333333,
+  "val_loss": 0.8799130916595459,
+  "train_acc": 0.4722222222222222,
+  "train_loss": 0.7825693488121033
+}

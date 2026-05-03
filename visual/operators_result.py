@@ -46,8 +46,12 @@ def plot_task_row(
         0.98,
         (
             f"DONN test MSE={metrics['test_mse']:.4f}\n"
+            f"test nMSE={metrics['normalized_mse']:.4f}\n"
+            f"RMSE/std={metrics['relative_rmse']:.4f}\n"
+            f"R2={metrics['r2']:.4f}\n"
             f"val MSE={metrics['val_mse']:.4f}\n"
             f"базовый MSE={metrics['baseline_mse']:.6f}\n"
+            f"базовый nMSE={metrics['baseline_normalized_mse']:.6f}\n"
             f"corr={metrics['test_corr']:.4f}"
         ),
         transform=axes[0].transAxes,
@@ -97,8 +101,8 @@ def plot_report(
 
     fig.suptitle(
         "Задача 3: визуальный отчёт (математические операторы) | "
-        f"интегрирование test_mse={results['integration']['metrics']['test_mse']:.4f}, "
-        f"дифференцирование test_mse={results['differentiation']['metrics']['test_mse']:.4f}",
+        f"интегрирование R2={results['integration']['metrics']['r2']:.3f}, "
+        f"дифференцирование R2={results['differentiation']['metrics']['r2']:.3f}",
         fontsize=13,
     )
     out_path.parent.mkdir(parents=True, exist_ok=True)
@@ -132,12 +136,12 @@ def main() -> None:
     parser.add_argument(
         "--out-path",
         type=Path,
-        default=Path("artifacts/plots/third_work_visual_summary.png"),
+        default=Path("artifacts/plots/table3/third_work_visual_summary.png"),
     )
     parser.add_argument(
         "--metrics-path",
         type=Path,
-        default=Path("artifacts/plots/third_work_visual_metrics.json"),
+        default=Path("artifacts/plots/table3/third_work_visual_metrics.json"),
     )
     args = parser.parse_args()
 
@@ -173,6 +177,11 @@ def main() -> None:
                 "val_mse": metrics.val_mse,
                 "baseline_mse": metrics.baseline_mse,
                 "test_corr": metrics.test_corr,
+                "target_std": metrics.target_std,
+                "normalized_mse": metrics.normalized_mse,
+                "baseline_normalized_mse": metrics.baseline_normalized_mse,
+                "relative_rmse": metrics.relative_rmse,
+                "r2": metrics.r2,
             },
             "x_test": x_test,
             "y_test": y_test,

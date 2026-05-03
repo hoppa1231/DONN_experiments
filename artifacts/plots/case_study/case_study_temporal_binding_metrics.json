@@ -1,0 +1,123 @@
+{
+  "variant": "temporal_binding_dataset_and_algorithm_control",
+  "is_full_trained_ocnn_reproduction": false,
+  "source": "saved",
+  "paper_claim": "group oscillators have higher synchrony than residuary oscillators",
+  "article_table6_counts": {
+    "A_hat": 545,
+    "X_hat": 435,
+    "B_hat": 38,
+    "Y_hat": 48
+  },
+  "threshold_quantile": 0.8,
+  "grid": 8,
+  "trials": 20,
+  "seed": 42,
+  "generated_samples": null,
+  "seq_len": null,
+  "canvas_dim": null,
+  "dataset_audit": {
+    "x_shape": [
+      500,
+      100,
+      3,
+      32,
+      32
+    ],
+    "y_shape": [
+      500,
+      100,
+      4
+    ],
+    "class_counts": [
+      27,
+      25,
+      24,
+      24
+    ],
+    "blank_frame_fraction": 0.16644,
+    "samples_with_blank_frames": 98,
+    "max_blank_frames_in_sample": 188,
+    "blank_frame_fraction_by_class": [
+      0.1602962962962963,
+      0.15768,
+      0.19533333333333333,
+      0.15358333333333332
+    ]
+  },
+  "deterministic_classifier_audit": {
+    "accuracy": 1.0,
+    "confusion_matrix": [
+      [
+        27,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        25,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        24,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        24
+      ]
+    ],
+    "predicted_class_counts": [
+      27,
+      25,
+      24,
+      24
+    ]
+  },
+  "binding_results": [
+    {
+      "class_name": "channel0_vertical",
+      "group_size": 120,
+      "residuary_size": 136,
+      "group_synchrony_mean": 0.11774548292160034,
+      "group_synchrony_std": 0.020325760124706112,
+      "residuary_synchrony_mean": 0.08193369060754777,
+      "residuary_synchrony_std": 0.00692684722868042
+    },
+    {
+      "class_name": "channel1_vertical",
+      "group_size": 120,
+      "residuary_size": 136,
+      "group_synchrony_mean": 0.12291450500488281,
+      "group_synchrony_std": 0.022998919139308197,
+      "residuary_synchrony_mean": 0.08062951676547528,
+      "residuary_synchrony_std": 0.007201555390830548
+    },
+    {
+      "class_name": "channel0_horizontal",
+      "group_size": 120,
+      "residuary_size": 136,
+      "group_synchrony_mean": 0.11588644795119762,
+      "group_synchrony_std": 0.021776148726682754,
+      "residuary_synchrony_mean": 0.08612493835389615,
+      "residuary_synchrony_std": 0.008075592127359841
+    },
+    {
+      "class_name": "channel1_horizontal",
+      "group_size": 120,
+      "residuary_size": 136,
+      "group_synchrony_mean": 0.11441129818558693,
+      "group_synchrony_std": 0.0141411500170898,
+      "residuary_synchrony_mean": 0.08387693762779236,
+      "residuary_synchrony_std": 0.006457640700973221
+    }
+  ],
+  "all_group_means_above_residuary": true,
+  "mean_group_minus_residuary": 0.03459816267713904
+}

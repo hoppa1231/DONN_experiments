@@ -1,0 +1,36 @@
+{
+  "variant": "paper_exact_control",
+  "assumption": "many_to_one_mse_on_one_hot_labels",
+  "article_architecture": "Embedding(100) -> Hopf(100) -> ReLU(100) -> Hopf(100) -> ReLU(100) -> tanh(20) -> output(2)",
+  "paper_reported_acc": 0.852,
+  "paper_reported_total_params": 26798,
+  "test_acc": 0.525390625,
+  "val_acc": 0.48859934853420195,
+  "test_loss": 0.42551320791244507,
+  "epochs": 1,
+  "batch_size": 256,
+  "seed": 42,
+  "learning_rate": 0.001,
+  "vocab_size": 35000,
+  "max_len": 500,
+  "train_samples": 1024,
+  "test_samples": 1024,
+  "val_ratio": 0.3,
+  "embed_dim": 100,
+  "units": 100,
+  "proj_dim": 20,
+  "hopf_input_scale": 0.2,
+  "history": {
+    "loss": [
+      1.032418131828308
+    ],
+    "val_loss": [
+      0.43919602036476135
+    ]
+  },
+  "total_params": 3542462,
+  "embedding_params": 3500000,
+  "non_embedding_params": 42462,
+  "param_gap_total_vs_paper": 3515664,
+  "param_gap_non_embedding_vs_paper": 15664
+}

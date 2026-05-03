@@ -1,0 +1,47 @@
+{
+  "variant": "strict_paper_sequence_architecture",
+  "is_paper_architecture": true,
+  "task": "differentiation",
+  "article": {
+    "table": "Table 3",
+    "reported_validation_mse": 0.1,
+    "architecture": "ReLU(20), Hopf(20), ReLU(20), Hopf(20), tanh(20), output(1)",
+    "initial_frequency_range_hz": [
+      1.0,
+      10.0
+    ],
+    "input_type": "I(t)",
+    "oscillator_frequencies": "not trained",
+    "input_range_hz": [
+      1.0,
+      5.0
+    ]
+  },
+  "test_mse": 792.7212524414062,
+  "val_mse": 691.7204132461799,
+  "test_corr": -0.04599268029205392,
+  "epochs": 5,
+  "batch_size": 8,
+  "seed": 42,
+  "learning_rate": 0.0001,
+  "clipnorm": 1.0,
+  "num_samples": 80,
+  "dt": 0.001,
+  "duration": 1.0,
+  "num_components": 5,
+  "units": 20,
+  "min_omega_hz": 1.0,
+  "max_omega_hz": 10.0,
+  "hopf_input_scale": 0.1,
+  "mu": 1.0,
+  "beta": -100.0,
+  "scale_data": true,
+  "x_scale": 1.5209659337997437,
+  "y_scale": 30.60079002380371,
+  "assumptions": [
+    "Static layers are implemented as complex dense layers with split real/imag activation per Eq. (20).",
+    "The real part of the final complex output layer is used as the real-valued target sequence.",
+    "The paper does not specify dataset size, train/test split, batch size, or exact initialization seed."
+  ],
+  "numeric_baseline_mse": 0.0002294170844834298
+}

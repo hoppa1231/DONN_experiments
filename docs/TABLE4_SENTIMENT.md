@@ -25,7 +25,7 @@
 - оптимизатор: `Adam`;
 - learning rate: `0.001`;
 - loss: `MSE`;
-- split train/validation: `7:3`;
+- в статье указано разделение данных `7:3`;
 - заявленная точность DONN: `85.2%`.
 
 ## Что оказалось нестыковочным уже на уровне статьи
@@ -57,6 +57,8 @@
 - задача трактуется как many-to-one классификация;
 - целевые значения это one-hot вектор размера `2`;
 - loss остаётся `MSE`, как и в статье;
+- используется стандартный IMDB train/test split, а `val_ratio=0.3` применяется
+  внутри train split;
 - после второго Hopf-блока берётся последний временной шаг;
 - затем идут `tanh(20)` и `output(2)`.
 
@@ -69,8 +71,8 @@
 
 Файлы:
 
-- `artifacts/plots/fourth_work_paper_exact_summary_1k1e.png`
-- `artifacts/plots/fourth_work_paper_exact_metrics_1k1e.json`
+- `artifacts/plots/table4/fourth_work_paper_exact_summary_1k1e.png`
+- `artifacts/plots/table4/fourth_work_paper_exact_metrics_1k1e.json`
 
 Результат:
 
@@ -82,7 +84,7 @@
 
 Для сравнения на том же типе сплита сохранён короткий baseline:
 
-- `artifacts/plots/fourth_work_paper_baseline_metrics_1k1e.json`
+- `artifacts/plots/table4/fourth_work_paper_baseline_metrics_1k1e.json`
 
 Baseline:
 
@@ -93,8 +95,8 @@ Baseline:
 
 Файлы:
 
-- `artifacts/plots/fourth_work_paper_exact_summary_4k3e.png`
-- `artifacts/plots/fourth_work_paper_exact_metrics_4k3e.json`
+- `artifacts/plots/table4/fourth_work_paper_exact_summary_4k3e.png`
+- `artifacts/plots/table4/fourth_work_paper_exact_metrics_4k3e.json`
 
 Результат:
 
@@ -106,6 +108,34 @@ Baseline:
 
 - loss убывает;
 - accuracy не выходит из области случайного угадывания.
+
+### 3. Post-Hopf correction checks
+
+После исправления формулы `HopfLayer` короткий контроль `1024 / 1024`, `1`
+эпоха сохранен отдельно:
+
+- `artifacts/plots/table4/fourth_work_paper_exact_summary_1k1e_post_hopf.png`
+- `artifacts/plots/table4/fourth_work_paper_exact_metrics_1k1e_post_hopf.json`
+
+Результат:
+
+- `test_acc = 0.5254`
+- `val_acc = 0.4886`
+- `test_loss = 0.3718`
+
+Полный локальный запуск `4096 / 4096`, `3` эпохи после исправления Hopf был
+остановлен окружением с кодом `137`, поэтому вместо него зафиксирован
+устойчивый контроль `2048 / 2048`, `2` эпохи:
+
+- `artifacts/plots/table4/fourth_work_paper_exact_summary_2k2e_post_hopf.png`
+- `artifacts/plots/table4/fourth_work_paper_exact_metrics_2k2e_post_hopf.json`
+
+Результат:
+
+- `test_acc = 0.5244`
+- `val_acc = 0.5098`
+- `test_loss = 0.2535`
+- `total_params = 3,542,462`
 
 Это сильный признак того, что paper-style MSE-постановка для Table 4 либо
 описана в статье неполно, либо в опубликованной формулировке не воспроизводит

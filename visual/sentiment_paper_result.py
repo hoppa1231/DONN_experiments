@@ -156,12 +156,12 @@ def main() -> None:
     parser.add_argument(
         "--out-path",
         type=Path,
-        default=Path("artifacts/plots/fourth_work_paper_exact_summary.png"),
+        default=Path("artifacts/plots/table4/fourth_work_paper_exact_summary.png"),
     )
     parser.add_argument(
         "--metrics-path",
         type=Path,
-        default=Path("artifacts/plots/fourth_work_paper_exact_metrics.json"),
+        default=Path("artifacts/plots/table4/fourth_work_paper_exact_metrics.json"),
     )
     args = parser.parse_args()
 

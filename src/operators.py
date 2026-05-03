@@ -19,6 +19,11 @@ class OperatorMetrics:
     val_mse: float
     baseline_mse: float
     test_corr: float
+    target_std: float
+    normalized_mse: float
+    baseline_normalized_mse: float
+    relative_rmse: float
+    r2: float
 
 
 class DONNOperatorRegressor(tf.keras.Model):
@@ -241,6 +246,12 @@ def train_one_task(
     test_mse = float(np.mean((pred - y_test) ** 2))
     val_mse = float(history.history["val_loss"][-1] * (y_scale**2))
     test_corr = float(np.corrcoef(pred.reshape(-1), y_test.reshape(-1))[0, 1])
+    target_std = _safe_scale(y_test)
+    target_var = target_std**2
+    normalized_mse = float(test_mse / target_var)
+    baseline_normalized_mse = float(baseline_mse / target_var)
+    relative_rmse = float(np.sqrt(test_mse) / target_std)
+    r2 = float(1.0 - normalized_mse)
 
     metrics = OperatorMetrics(
         task=task,
@@ -248,5 +259,10 @@ def train_one_task(
         val_mse=val_mse,
         baseline_mse=baseline_mse,
         test_corr=test_corr,
+        target_std=target_std,
+        normalized_mse=normalized_mse,
+        baseline_normalized_mse=baseline_normalized_mse,
+        relative_rmse=relative_rmse,
+        r2=r2,
     )
     return metrics, t, x_test, y_test, pred.astype(np.float32), baseline_pred

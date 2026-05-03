@@ -1,0 +1,63 @@
+Data Availability Statement
+Deep Oscillatory Neural Network
+All data generated or analysed during this study are included in this published article
+[and its supplementary information files].
+The dataset and the script to generate the data used in this study have been made publicly
+available, and can be found in the links below.
+Signal Generation and Classification task:
+https://drive.google.com/drive/folders/1fTynkKB5Nabjv3HrvpPbHgV5MmuHN1df?usp=drive_link
+Contents:
+X.npy - Input Signal
+Y.npy - Output Signals
+Signal_generation_Classification_dataset.ipynb - Python script to
+generate data
+
+Amplitude (de)modulation task:
+https://drive.google.com/drive/folders/14zlLCWnZ5zY-NkRTB6xnFEORcaXJlImC?usp=drive_lin
+k
+Contents:
+X.npy - Input Modulated signal
+Y.npy - Output Demodulated signal
+Amplitude_modulation_demodulation_dataset.ipynb - Python script to
+generate data
+
+Mathematical Operators task:
+https://drive.google.com/drive/folders/1XruFJf-lfs1PYL9CTS7GU8EjBxhyM5na?usp=drive_link
+Contents:
+​
+Differentiation_dataset
+X.npy - Input signal
+Y.npy - Output signal after differentiation
+​
+
+Differentiation_data.ipynb - Python script to generate data
+Integration_dataset
+X.npy - Input signal
+Y.npy - Output signal after integration
+
+​
+
+Integration_data.ipynb - Python script to generate data
+Integration_trajectory_dataset
+
+X.npy - Input limb oscillations
+Y.npy - Output signal
+
+Sentiment Analysis Task:
+Publicly available dataset:
+https://www.kaggle.com/datasets/lakshmi25npathi/imdb-dataset-of-50k-movie-reviews
+UCF11 Video Classification task:
+Publicly available dataset:
+https://www.kaggle.com/datasets/pypiahmad/realistic-action-recognition-ucf50-dataset
+Next frame prediction task:
+Publicly available dataset:
+https://www.kaggle.com/code/kcostya/convlstm-convolutional-lstm-network-tutorial
+Case study dataset:
+Drive link:
+https://drive.google.com/drive/folders/1Le2myQhGIFr1aOZ0g8fXODlqelAfjfvE?usp=sharing
+Contents:
+X.npy - Input videos
+Y.npy - Output data
+temporal_binding_dataset.py - Python script to generate data
+
+

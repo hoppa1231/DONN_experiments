@@ -1,0 +1,56 @@
+{
+  "variant": "paper_style_ramp_control",
+  "dataset_source": "supplement-notebook",
+  "test_acc": 0.47,
+  "val_acc": 0.5125,
+  "test_loss": 0.0836360827088356,
+  "accuracy_report": {
+    "acc_mean": 0.47,
+    "acc_sum": 0.47,
+    "acc_final": 0.61,
+    "acc_template_mse": 0.49,
+    "class_hist_true": [
+      96,
+      104
+    ],
+    "class_hist_mean": [
+      66,
+      134
+    ],
+    "class_hist_final": [
+      22,
+      178
+    ],
+    "class_hist_template_mse": [
+      54,
+      146
+    ]
+  },
+  "class_hist_true": [
+    96,
+    104
+  ],
+  "class_hist_pred": [
+    66,
+    134
+  ],
+  "epochs": 20,
+  "batch_size": 32,
+  "seed": 42,
+  "learning_rate": 0.001,
+  "units": 20,
+  "proj_dim": 20,
+  "hopf_input_scale": 0.1,
+  "min_omega_hz": 0.1,
+  "max_omega_hz": 20.0,
+  "samples_per_class": 500,
+  "num_steps": 1000,
+  "dt": 0.001,
+  "num_components": 5,
+  "assumptions": [
+    "paper-style ramp targets with MSE objective",
+    "Linear(20) is modeled as a real-valued TimeDistributed Dense before Hopf",
+    "Hidden readout uses oscillator amplitudes before tanh(20) -> output(2)",
+    "Oscillator frequencies are fixed, matching Table 1"
+  ]
+}

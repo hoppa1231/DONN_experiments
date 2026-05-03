@@ -160,19 +160,19 @@ def main() -> None:
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--learning-rate", type=float, default=1e-3)
     parser.add_argument("--units", type=int, default=20)
-    parser.add_argument("--proj-dim", type=int, default=32)
+    parser.add_argument("--proj-dim", type=int, default=20)
     parser.add_argument("--dropout", type=float, default=0.0)
     parser.add_argument("--hopf-input-scale", type=float, default=5.0)
     parser.add_argument("--use-linear-frontend", action="store_true")
     parser.add_argument(
         "--out-path",
         type=Path,
-        default=Path("artifacts/plots/first_work_visual_comparison_ce.png"),
+        default=Path("artifacts/plots/table1/first_work_visual_comparison_ce.png"),
     )
     parser.add_argument(
         "--metrics-path",
         type=Path,
-        default=Path("artifacts/plots/first_work_visual_metrics_ce.json"),
+        default=Path("artifacts/plots/table1/first_work_visual_metrics_ce.json"),
     )
     args = parser.parse_args()
 

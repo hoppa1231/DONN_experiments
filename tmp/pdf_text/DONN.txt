@@ -1,0 +1,1235 @@
+www.nature.com/scientificreports
+
+OPEN
+
+Deep oscillatory neural network
+Nurani Rajagopal Rohan1,5, C. Vigneswaran1,5, Sayan Ghosh1,3, Kishore Rajendran2,
+A. Gaurav2 & V. Srinivasa Chakravarthy1,4
+We propose the Deep Oscillatory Neural Network (DONN), a brain-inspired network architecture
+that incorporates oscillatory dynamics into learning. Unlike conventional neural networks with static
+internal states, DONN neurons exhibit brain-like oscillatory activity through neural Hopf oscillators
+operating in the complex domain. The network combines neural oscillators with traditional sigmoid
+and ReLU neurons, all employing complex-valued weights and activations. Input signals can be
+presented to oscillators in three modes: resonator, amplitude modulation, and frequency modulation.
+Training uses complex backpropagation to minimize the output error. We extend this approach to
+convolutional architectures, creating Oscillatory Convolutional Neural Networks (OCNNs). Evaluation
+on benchmark signal and image processing tasks demonstrates comparable or improved performance
+over baseline methods. Interestingly, the network exhibits emergent phenomena such as feature and
+temporal binding during image classification, a key characteristic of biological visual processing, and
+exhibit STDP (Spike Timing Dependent Plasticity) kernel when trained using Hebbain learning. These
+phenomena with explicit oscillatory dynamics enhance the interpretability of internal representations.
+
+Keywords Complex-valued oscillators, Complex-valued weights, Brain-inspired networks, Sequential
+problems
+
+A fundamental dichotomy persists in current large-scale models of brain function. In recent years, deep learning
+models, which have not been hitherto taken seriously in terms of biological plausibility, have demonstrated
+remarkable success in capturing sensory functions in the visual and auditory domains1–6. Despite their predictive
+power, these models do not represent the rich internal dynamics of the brain that underlie sensory processing. In
+contrast, non-linear oscillator networks have proven effective in accurately modeling brain dynamics observed
+in functional neuroimaging studies7–9, yet they lack the capacity to learn complex input-output behavioral
+mappings characteristic of deep learning systems. This highlights the need for novel models that can resolve
+this dichotomy, and bridge the gap between the learning abilities of deep networks and the dynamic fidelity
+of oscillator-based approaches. In the following, we examine this dichotomy in detail and explore a potential
+pathway toward its resolution.
+Brain oscillations represent a fundamental neurophysiological mechanism underlying cognitive functions
+and brain states. Research has established that oscillatory neural activity serves as the foundation for perception,
+memory, and higher-order cognitive processes through synchronized oscillatory networks distributed across
+the brain10,11. These neural oscillations encompass an extensive frequency spectrum, ranging from 0.05 Hz to
+500 Hz12. This broad frequency range is organized into approximately twelve distinct frequency bands that exhibit
+a systematic logarithmic progression. The hierarchical organization of these frequency bands reflects both their
+evolutionary development and their functional specialization, with neighboring bands often associated with
+related cognitive and physiological states. Delta waves (0.5–4 Hz) dominate during deep sleep and recovery
+processes, theta oscillations (4–8 Hz) facilitate memory encoding and spatial navigation, alpha rhythms (8–
+12 Hz) characterize relaxed wakefulness and attention regulation, beta frequencies (13–30 Hz) support active
+cognition and motor control, and gamma oscillations (30–100 Hz) coordinate high-level cognitive processing
+and conscious awareness. This frequency-function relationship extends beyond normal physiological states, as
+disruptions in oscillatory patterns are consistently observed in pathological conditions including epilepsy, where
+abnormal synchronization patterns generate seizure activity13, anesthesia, where altered oscillatory dynamics
+accompany loss of consciousness14, and sleep disorders, where pathological oscillations impair restorative
+processes.
+Conversely, Recurrent Neural Networks (RNNs) are traditionally used to solve sequential tasks in a variety of
+domains ranging from Natural Language Processing (NLP)15,16, time-series forecasting17,18, music generation19,
+1Department of Biotechnology, Indian Institute of Technology Madras, Chennai 600036, Tamil Nadu, India.
+
+2Department of Electrical Engineering, Indian Institute of Technology Madras, Chennai 600036, Tamil Nadu, India.
+3Department of Computer Science and Engineering, SRM University-AP, Amaravati 522502, Andhra Pradesh,
+
+India. 4Center for Complex Systems and Dynamics, Indian Institute of Technology Madras, Chennai 600036,
+Tamil Nadu, India. 5These authors contributed equally: Nurani Rajagopal Rohan and C. Vigneswaran. email:
+schakra@ee.iitm.ac.in
+Scientific Reports |
+
+(2025) 15:40968
+
+| https://doi.org/10.1038/s41598-025-24837-4
+
+1
+
+www.nature.com/scientificreports/
+video analysis20, etc. Popular variants of vanilla RNNs like Long Short-Term Memory units (LSTMs)21, Gated
+Recurrent Unit (GRUs)22, flip-flop23 neural networks are widely used for different kinds of sequential problems
+and achieve state-of-the-art performance. These sequential networks can operate in different modes namely,
+many-to-one (eg. sentiment analysis)24, one-to-many (eg. handwriting generation)25 and, many-to-many (eg.
+machine translation)26. Recurrent units with convolutional operations on the gating variables are used to capture
+spatio-temporal features in video processing tasks27. Some recent studies have constructed complex networkbased embeddings and neural manifolds to classify EEG data and improve interpretability28,29. In recent years,
+deep neural networks (DNN) have been shown to match human performance in pattern recognition in visual
+and auditory domains1,2. Studies that demonstrated a similarity in human performance with that of DNNs,
+have further shown that even human error pattern with respect shape variation30, viewpoint variation3,4 and
+object class5,6 also matched with DNN error patterns. However, this broad match in error patterns did not
+carry over into errors committed on classification of individual images31. Similarly in the auditory domain,
+studies based on DNNs have shown a close performance match in music and speech recognition32–34. Despite
+these remarkable successes in achieving human-like behavioral performance, the aforementioned deep learning
+models are unable to capture the oscillatory activity of brain dynamics.
+Considering the fundamental importance of oscillations in brain function, any comprehensive large-scale
+model of neural dynamics must necessarily accommodate oscillatory brain activity and reflect the empirically
+established significance of various frequency bands. Neural mass models35 have emerged as a computational
+framework for describing brain dynamics at mesoscopic and macroscopic levels. In contrast to detailed
+biophysical models that simulate individual neurons, neural mass models represent the collective behavior
+of neural populations as their fundamental computational unit. Popular low dimensional models have been
+utilized to describe the oscillatory dynamics. The Hopf oscillator, which generates stable limit-cycle oscillations
+via supercritical bifurcations and can entrain to inputs; the Wilson-Cowan model36, which describes excitatory–
+inhibitory interactions and produces gamma-band rhythms; the FitzHugh–Nagumo oscillator37, a reduced
+excitability model that reproduces spike-generation and synchronization; and the Kuramoto model38,39, which
+characterizes phase synchronization across large oscillator networks. Theoretical analysis of networks of
+excitatory and inhibitory neurons have revealed rich resonance due to various phenomena, particularly stochastic
+resonance40,41. These oscillatory network models have demonstrated remarkable success in reproducing brain
+dynamics as measured through functional neuroimaging techniques including functional magnetic resonance
+imaging (fMRI), magnetoencephalography (MEG), and high-density electroencephalography (EEG)42–47.
+However, a critical limitation emerges when the functional capabilities of these oscillatory networks are
+examined. Although they excel at capturing the dynamic signatures of brain activity, they fundamentally lack the
+input-output learning capacity that characterizes biological neural systems. This represents a profound constraint
+on their applicability as general models of brain function. Current implementations of oscillatory networks,
+when applied to behavioral modeling, remain predominantly restricted to intrinsically rhythmic or periodic
+behaviors. Examples include central pattern generator models for locomotor movements in quadrupedal gaits48,
+oscillatory control of rhythmic hand movements during repetitive tasks49, and coordination of swimming
+motions in aquatic locomotion50.
+Research has highlighted that these observed oscillatory responses in cortical systems are not only a reflection
+of the fixed network property, but a task-dependent phenomenon, emerging dynamically through a causal chain,
+from the interaction between network connectivity and external drive. This observation has important modeling
+implications; to capture such emergent coordination faithfully, computational frameworks cannot completely
+rely on static coupling schemes alone. Instead, oscillatory network models must, in addition, be endowed with
+the capacity to exhibit input-contingent oscillatory phenomena, allowing their collective dynamics to flexibly
+adapt to task demands. Incorporating this principle is essential, as oscillations serve not only as products of
+intrinsic neuronal and network dynamics but also as mechanisms for context-dependent, transient binding or
+segregation of neuronal populations and represent a fundamental and salient condition for modeling the full
+spectrum of brain function.
+From the above considerations, there is a clear need to develop deep neural networks in which the hidden
+layers are constituted of oscillatory neuron models. The networks must be capable of learning input/output
+behaviour like any deep neural network. In this paper we address this challenge and present a general class
+of trainable deep oscillatory neural networks. The outline of the paper is as follows. In Sect. 2, we apply this
+network to a class of benchmark problems that involve sequential processing. We describe the results obtained
+and compare them with results from other non-oscillatory deep neural networks. Section 3 describes the
+development of the model and the equations that govern dynamics and learning. Section 4 discusses the results
+and outlines how the present class of networks can be developed further to improve their biological plausibility.
+
+Results
+
+The DONN was implemented in Python 3.9.11 and TensorFlow 2.10.1, and run on an x86 CPU and NVIDIA
+GPU under Windows 11. Further implementation details are provided in the Supplementary Information. We
+demonstrate the capability of DONN in a variety of sequential processing tasks (some additional tasks have been
+included in the Supplementary Information).
+
+Temporal sequence processing and classification
+
+We describe the ability of DONN to extract Fourier-type features to be able to perform time series classification.
+We construct a synthetic dataset for temporal classification in which each datapoint consists of five independent
+signals.
+
+Scientific Reports |
+
+(2025) 15:40968
+
+| https://doi.org/10.1038/s41598-025-24837-4
+
+2
+
+www.nature.com/scientificreports/
+
+Initial frequency range of oscillators
+
+[0.1-20 Hz]
+
+Architecture
+
+Linear (20),Hopf (20), tanh (20), output (2)
+
+Input type to oscillators
+
+I(t)
+
+Frequency of oscillators
+
+Not trained
+
+Table 1. Network architecture for Classification.
+
+Figure 1. (a) Training Samples from the dataset are shown on the left with the corresponding labels on the
+right. (b) Some sample model predictions are shown on the left and are compared with the corresponding
+labels to indicate correct classification. (c) A comparison of the internal dynamics of Hopf oscillator activations
+in response to two samples from separate datasets. Stimulating the network with a signal from class-1, the
+amplitudes of the oscillators with intrinsic frequency in the range 0.1–10 Hz show differential amplitudes when
+compared to the oscillators with higher intrinsic frequency, whereas Class-2 inputs activate oscillators in the
+10–20 Hz band.
+
+I(t) =
+
+5
+∑
+
+Ai sin(2πfi t + ϕi )(1)
+
+i=1
+
+The amplitudes Ai are sampled uniformly from [-3, 3], and the phases are drawn uniformly from [0, 2π]. The
+dataset is divided into two classes based on the frequency content of the signals. In Class 1, the frequencies of all
+five signals lie within the low-frequency band, f ∈ [0, 10] Hz, whereas in Class 2, the frequencies are sampled
+from the higher band, f ∈ [10, 20] Hz. This controlled setup enables clear discrimination based on frequency
+features, while preserving diversity through randomization in amplitude and phase across data points.
+The details of the network architecture are described in Table 1 which achieves an accuracy of 99% on this
+binary classification task. We analyze the hidden layer’s oscillatory activity to understand how the network
+encodes and differentiates input signals. By stimulating the network with signals from the dataset, we examine
+the resulting amplitudes of the oscillators in the hidden (oscillatory) layer to infer class-specific internal
+representations. Upon presentation of dataset signals, the amplitude responses of oscillators reveal class-specific
+tuning: signals from Class-1 lead to heightened activity in the 0.1–10 Hz frequency band, while signals from
+Class-2 primarily engage the 10–20 Hz oscillators, see Fig. 1.
+Amplitude demodulation
+In order to transmit a signal over a distance without being affected by external interference or noise and without
+experiencing degradation, it must undergo a modulation process. The inverse process of retrieving the message
+is demodulation. We show that our network is able to perform this operation. The mathematical expression for
+amplitude modulation is given as follows,
+M(t) = (1 + m(t)) sin(ωc t)(2)
+
+where m(t) is the message signal,
+∑ω5c is the carrier wave frequency and M(t) is the modulated signal. For this
+task the message signal, m(t) = i=1 sin(2πfi t), fi ∈ U (1, 5) Hz. Carrier frequency, ωc = 8 Hz is kept fixed.
+Scientific Reports |
+
+(2025) 15:40968
+
+| https://doi.org/10.1038/s41598-025-24837-4
+
+3
+
+www.nature.com/scientificreports/
+
+Figure 2.∑(a) (Left) The message signals composed of up to five frequency components i.e.,
+5
+m(t) = i=1 sin(2πfi t), fi ∈ U (1, 5) Hz. (Right) the corresponding modulated signals described by Eq. (2).
+(b) The performance of our model in demodulating the signal. The desired demodulated signals are in orange
+and the model predictions are in blue.
+
+Input frequency range
+
+Carrier: 8 Hz, message signal: [1-5 Hz]
+
+Initial frequency range of oscillators
+
+[0.1-12 Hz]
+
+Architecture
+
+ReLU (40),Hopf (40), ReLU (40),Hopf (40), tanh (40), output (1)
+
+Input type to oscillators
+
+I(t)
+
+Frequency of oscillators
+
+Not trained
+
+Table 2. Network architecture for Amplitude Demodulation.
+
+Some sample message signals and the corresponding modulated signals are given in Fig. 2a. The size details of
+the network architecture are described in Table 2. The oscillators are initialised with frequency in the range 0.1
+Hz to 12 Hz. The input to the oscillator is given as I(t). The network is able to demodulate the message signal
+accurately (Fig. 2b). The validation MSE loss is 0.02 (p < 0.05, n = 10).
+
+Learning mathematical operators
+
+In this task the network is trained to perform indefinite integration and differentiation on synthetically generated
+sinusoidal signals : Data, the data is composed
+∑ of signals with multiple frequency components and arbitrary
+initial phase offset and amplitude. If I(t) = i ai sin(ωi t + ϕi ) is the input signal, the output signal, then for
+the integration task, O(t) is given by,
+O(t) =
+
+∑
+
+−
+
+∑
+
+ai ωi cos(ωi t + ϕi )(4)
+
+i
+
+ai
+cos(ωi t + ϕi )(3)
+ωi
+
+and for the differentiation is given by,
+O(t) =
+
+i
+
+where ai , ϕi , ωi are the amplitude, phase offsets and the angular frequencies sampled from N (0, 1), N (0, π)
+and U(1, 5) respectively.
+The size details of the network architecture for the task is described in Table 3. The network successfully
+performs the integration operation and the differentiation operation on the dataset, see Fig. 3. For integration,
+Data-1 the validation MSE loss is 0.08 (p < 0.05, n = 10), and the MSE loss for Differentiation is 0.1, (p < 0.05,
+n = 10).
+Sentiment analysis
+Movie review sentiment analysis typically involves a two-class classification problem (positive/negative).
+The IMDB large movie review dataset51 serves as a common benchmark for sentiment analysis tasks, with a
+predefined maximum review length of 500 words. The training data is split into training and validation in a 7 :
+
+Scientific Reports |
+
+(2025) 15:40968
+
+| https://doi.org/10.1038/s41598-025-24837-4
+
+4
+
+www.nature.com/scientificreports/
+
+Data 1
+Input frequency range
+
+[0.1-5 Hz]
+
+Initial frequency range of oscillators
+
+[1-10 Hz]
+
+Architecture
+
+ReLU (20),Hopf (20), ReLU (20), Hopf (20), tanh (20), output (1)
+
+Input type to oscillators
+
+I(t)
+
+Frequency of oscillators
+
+Not trained
+
+Table 3. Network architecture for Learning Mathematical Operations.
+
+Figure 3. (a) The network is able to learn the Integration operation, some sample figures are shown where the
+model predictions shown in orange are compared with desired signals in blue. (b) The network is able to learn
+the Differentiation operation, some sample figures are shown, where the desired outputs (orange) and model
+predicted outputs (blue) are shown.
+
+Model
+
+Validation accuracy
+
+Architecture
+
+Bidirectional LSTM 23
+
+85.19%
+
+Embedding layer (100), 2 x Bidirectional flip-flops (100), tanh (20),output (2)
+
+Bidirectional flipflop 23
+
+85.07%
+
+Embedding layer (100), 2 x Bidirectional flip-flops (100), tanh (20),output (2)
+
+DONN
+
+85.2 %
+
+Embedding layer (100), Hopf (100),ReLU (100), Hopf (100),ReLU (100),
+tanh (20), output (2) Initial frequency range of oscillators: [1-15 Hz], Input
+type to oscillators: I(t), Frequency of oscillators: trained
+
+Table 4. Sentiment analysis.
+
+3 ratio. The selection of this task aims to demonstrate the proficiency of the Deep Oscillator Neural Network in
+sequence classification.
+The words are encoded and passed to the embedding layer followed by the DONN. The embedding dimension
+is 100 with a vocabulary length of 35,000. The input to the oscillator layer is presented as I(t). The total trainable
+parameters is 26,798. The optimiser used is the ADAM optimiser with learning rate = 0.001, and the objective
+function used is mean squared error. The model achieves a performance of 85.2% (p < 0.05, n = 10) accuracy
+on testing data. The network architecture and comparison with other models are described in Table 4
+
+Spatiotemporal sequence processing and classification
+
+Action recognition : UCF 11
+To showcase the sequence processing capacity of OCNN network in spatiotemporal domain, we validate the
+network using UCF11 YouTube Action dataset52. UCF11 is a standard 3-channel RGB video classification
+dataset with different viewpoints, backgrounds and camera motions. The dataset consists of 11 action classes,
+and number of frames for all the videos is set to 50, with each frame resized to 48×48 from the original 224×224,
+on account of limited computational capability. Dataset is divided into training and validation with 1290 and
+305 samples respectively. The network used for the task consists of two pairs of convolutional-oscillators layers,
+followed by flattening and dense layers. The architecture details of the network used for the task is mentioned
+in Table 5. Time step of the oscillators is set to 0.02 seconds with the number of time steps equal to the number
+of frames in a video sample. Adam (learning rate: 0.0001) and MSE are used as optimizer and loss function
+respectively for training.
+Scientific Reports |
+
+(2025) 15:40968
+
+| https://doi.org/10.1038/s41598-025-24837-4
+
+5
+
+www.nature.com/scientificreports/
+
+Model
+
+Validation accuracy
+
+Architecture
+
+Convolutional LSTM 23
+
+95.42%
+
+2 x ConvLSTM (3x3,40), Conv3D (3x3x3, 1), flatten, softmax (2)
+
+Convolutional flip-flops23
+
+99.75%
+
+2 x ConvLSTM (3x3,40), Conv3D (3x3x3, 1), flatten, softmax (2)
+
+OCNN
+
+98.64%
+
+2 x OCNN (3x3,40), flatten, output (2) Initial frequency range:
+[1-15 Hz], Input type to oscillator: I(t), Frequency of oscillators:
+trained
+
+Table 5. Action recognition.
+
+Figure 4. (a) Accuracy and loss plots on validation data for UCF11 dataset. (b) Sample frames of the input and
+their corresponding classes mentioned above, and the desired and the model predicted ramp output. Only one
+class ramps up linearly whereas all other classes remain zero throughout.
+
+Figure 4a shows the accuracy and loss curves on validation data, Fig. 4b and the desired output and output
+from the model. The validation MSE loss and accuracy of the model is 0.0564 and 99.75% (p < 0.05, n = 10)
+respectively.
+Case study 1: temporal binding analysis with respect to color and orientation selection in ConvOsc network
+Several works in the literature draw parallels between artificial convolutional neural networks (CNNs) and the
+visual pathways of the brain1,6,53. Although CNNs are well known for compressing spatial features, the visual
+system of the brain processes both spatial and temporal features simultaneously. Different visual properties of the
+input stimulus (color, form, direction of motion etc) are processed in different visual cortical areas. This presents
+an interesting problem. If a subject is looking at a yellow disc moving up, and a red circle moving right, if the the
+color (‘yellow’ and ‘red’), form (‘square’ and ‘circle’) and motion (‘up’ and ‘right), how does the brain associate or
+bind different properties to different objects? An elegant solution offered to this problem is known as temporal
+binding. Accordingly, neurons whose firing activity represents different properties of the same object fire in
+synchrony. Thus it has been suggested that brain is using the temporal dimension to solve the binding problem.
+There is also neurobiological evidence to temporal binding from mammalian visual systems54. Temporal binding
+has also been demonstrated in spiking neural network models4. In this case study, we demonstrate that networks
+incorporating ConvOsc layers not only generalize effectively for classification tasks but also exhibit hidden-layer
+activations that capture temporal feature-binding characteristics.
+The task is to perform classification of videos from four classes: green horizontal moving bar, green vertical
+moving bar, red horizontal moving bar and red vertical moving bar. Parameters such as speed, width, and initial
+position of the bar are varied in generating input videos. The predicted winning class is chosen by the ramp
+approach. The model architecture and the hidden layer dimensions are mentioned in the Fig. 5. For this study,
+oscillators only from the second ConvOsc layer of the model is used. The following are the steps taken for
+temporal binding analysis.
+1. Selection of color and orientation selective oscillators.
+2. Group oscillators by union of color and orientation for the particular input class.
+3. Calculate synchrony within the oscillators of the group and the remaining oscillators.
+We now describe the algorithm that we used for the analysis of temporal binding:
+
+Scientific Reports |
+
+(2025) 15:40968
+
+| https://doi.org/10.1038/s41598-025-24837-4
+
+6
+
+www.nature.com/scientificreports/
+
+Figure 5. Model architecture and its hidden layer dimensions for temporal binding analysis study. All
+oscillators in the network are initialized in the range, 1–10 Hz.
+
+1. Let input video be of class (A, X) with color A and orientation X (where set colors (red, green): {A, B}, orientation (vertical, horizontal): {X, Y}, respectively).
+2. Calculate the amplitude of the oscillators’ responses |zi |.
+3. Let AX be the set of oscillators whose amplitude |zi | exceeds a defined threshold for an input video belonging
+to class (A, X). Similarly, compute the sets AY, BX, and BY as the oscillators whose amplitude |zi | exceeds the
+threshold for input videos belonging to classes (A, Y), (B, X), and (B, Y), respectively.
+4. Define the sets of color- and orientation-selective oscillators as follows:
+• Color-selective oscillators:
+Â = (AX ∪ AY ) − (BX ∪ BY )
+
+B̂ = (BX ∪ BY ) − (AX ∪ AY )
+
+• Orientation-selective oscillators:
+X̂ = (AX ∪ BX) − (AY ∪ BY )
+
+Ŷ = (AY ∪ BY ) − (AX ∪ BX)
+
+∪ and − denote set union and difference operations respectively. These sets ensure that oscillators are uniquely
+selective to either a specific color or orientation, excluding those that respond to both.
+
+5. The group oscillators corresponding to each input class are given by:
+ÂX̂ = Group oscillators obtained from Â ∪ X̂
+ÂŶ = Group oscillators obtained from Â ∪ Ŷ
+
+B̂ X̂ = Group oscillators obtained from B̂ ∪ X̂
+B̂ Ŷ = Group oscillators obtained from B̂ ∪ Ŷ
+
+6. To quantify the synchrony among oscillators, we compute synchrony S for the following sets:
+• Group oscillators: ÂX̂, ÂŶ , B̂ X̂, B̂ Ŷ .
+• Residuary oscillators: U -ÂX̂, U -ÂŶ , U -B̂ X̂, U -B̂ Ŷ (U is the set of all oscillators in the second ConvOsc layer).
+The synchrony S within a set of N oscillators over a time period T is computed using the formula:
+
+
+
+
+
+
+
+1   1  zi (t) 
+S=
+
+(5)
+T
+|zi (t)| 
+N
+T
+
+t=1
+
+N
+
+i=1
+
+The above steps are repeated n = 20 times, and the synchrony plot for the group and residuary oscillators in
+the second ConvOsc layer for different input classes is shown in Fig. 6. The number of oscillators in the sets Â,
+X̂ , B̂ , and Ŷ are summarized in Table 6. The results indicate that higher synchrony is achieved in the group
+oscillators compared to residuary oscillators across all 20 trials. Thus, the DONN network can show temporal
+binding characteristics.
+Case study 2: emergence of STDP (spike timing-dependent plasticity) kernel when a pair of coupled Hopf
+oscillators are trained using Hebb’s rule
+The nature of oscillatory dynamics allows for more robust temporal relationships that are less sensitive to noise
+and timing jitter compared to the precise spike timing requirements of STDP-based systems. Interestingly,
+the emergence of potentiation and the spike-time-dependent plasticity (STDP) kernel can be captured in a
+conjugately coupled pair of Hopf oscillators with complex weight W. The oscillators are driven by pulsed inputs,
+with one receiving the pulse after a delay of τ relative to the other. As a result of this interaction, the weights
+Scientific Reports |
+
+(2025) 15:40968
+
+| https://doi.org/10.1038/s41598-025-24837-4
+
+7
+
+www.nature.com/scientificreports/
+
+Figure 6. Synchrony values for group and residuary oscillators in the second ConvOsc layer
+for different input classes. Group oscillators (ÂX̂, ÂŶ , B̂ X̂, B̂ Ŷ ) and residuary oscillators
+(U − ÂX̂, U − ÂŶ , U − B̂ X̂, U − B̂ Ŷ ) are obtained from the corresponding input classes (Red-Vertical,
+Green-Vertical, Red-Horizontal, Green-Horizontal). Higher synchrony measures within the oscillators of
+Group than those of Residuary indicates temporal binding characteristics.
+
+Set
+
+Number of Oscillators
+
+Â
+
+545
+
+X̂
+
+435
+
+B̂
+
+38
+
+Ŷ
+
+48
+
+Table 6. Number of oscillators in the color-selective sets: Â, B, and orientation-selective sets: X̂ , Ŷ .
+
+evolve such that the real component captures potentiation, while the imaginary component encodes the STDP
+kernel. The dynamical equations are given by
+ż1 = (µ + iω1 )z1 − |z1 |2 z1 + W z2 + p(t),
+
+ż2 = (µ + iω2 )z2 − |z2 |2 z2 + W z1 + p(t + τ ),
+
+(6)
+(7)
+
+Ẇ = −W + η z1 z2 . (8)
+
+The weight updates are plotted as a function of the delay τ , see Fig. 7. However, this method is not employed in
+our analysis for solving any of the tasks.
+
+Hardware benchmarking
+
+In this section, the computational efficiency of DONN is compared with LSTM in terms of number of trainable
+parameters and execution time (GPU and CPU). Execution time is time elapsed in forward propagation of input
+data through the network. Two networks comprising of single layer of LSTM and DONN (no. of units=50)
+seperately are used for comparison. Figure 8 shows the comparison results for both networks. It can be inferred
+that DONN is more computationally efficient than LSTM, except for the execution time in GPU where
+Tensorflow’s LSTM module is CUDA compiled and leveraged CuDNN kernels for faster execution. The better
+performance of DONN in hardware benchmarking when compared to LSTM can be due to the usage of LSTM’s
+three gates (trainable parameter sets) and two outputs (cell and hidden) for sequence processing, whereas
+in DONN only complex-valued parameters are to trained. Despite having a significantly smaller number of
+trainable parameters and execution time, DONN can outperform LSTM in many of the sequence processing
+tasks. Please refer to the Supplementary Information for further results.
+
+Methods
+
+The oscillatory neuron model we use in our networks is the Hopf oscillator. It is a harmonic oscillator with
+a stable limit cycle. The canonical Hopf oscillator is described by the following complex valued differential
+equation,
+
+Scientific Reports |
+
+(2025) 15:40968
+
+| https://doi.org/10.1038/s41598-025-24837-4
+
+8
+
+www.nature.com/scientificreports/
+
+Figure 7. The weights kernels for one period of oscillations is shown. We see that the Re(W) encoded the
+potentiation whereas the Im(W) encodes the STDP kernel.
+
+Figure 8. Comparison between DONN and LSTM with respect to number of trainable model parameters and
+execution time (GPU & CPU).
+
+ż = z
+
+(
+
+ϵβ2 |z|4
+µ + ιω + β1 |z| +
+1 − ϵ|z|2
+2
+
+)
+
++ I(t).(9)
+
+where ω is the natural angular frequency of the Hopf oscillator, µ governs Hopf bifurcation, and I(t) is the
+external input to the oscillator. If z = x + ιy , then the polar coordinate form is received by introducing the
+variables,
+θ = arctan
+
+y
+, r = (x2 + y 2 )1/2 .(10)
+x
+
+The polar coordinate representation is more explicate for our analysis and is given as follows,
+Scientific Reports |
+
+(2025) 15:40968
+
+| https://doi.org/10.1038/s41598-025-24837-4
+
+9
+
+www.nature.com/scientificreports/
+
+Figure 9. The Oscillatory Neural Network is generally composed of alternating static and oscillatory layers.
+
+Figure 10. Mechanisms through which the input, zin (t) can be presented to the Oscillator unit.
+
+ṙ = µr + βr3 +
+ψ̇ = Ω −
+
+ϵβ2 r5
++ A(t) cos ψ
+1 − ϵr2
+(11)
+
+A(t)
+sin ψ
+r
+
+where r(t) is the instantaneous amplitude of oscillation and ψ(t) is its instantaneous angular position. The external
+input is given by, I(t) = A(t)eiϕ(t) where A(t) is the instantaneous amplitude and ϕ(t) the instantaneous
+phase angle. Further, we have introduced the transformation, ψ = θ − ϕ(t), and Ω = ω − dϕ
+dt is the difference
+between the angular frequencies of the oscillator and the external input. In the absence of an external input, the
+oscillator exhibits four distinct dynamical behaviors characterized by the parameters (µ, β1 , β2 ) − critical Hopf
+regime (µ = 0, β1 < 0, β2 = 0), supercritical Hopf regime (µ > 0, β1 < 0, β2 = 0), double limit cycle regime
+(µ < 0, β1 > 0, β2 < 0). We restrict our attention to the critical or supercritical regime (β2 = 0); for a more
+detailed analysis on the others see55. The equations Eq. (9) then transform to,
+
+(
+
+)
+
+ż = z µ + ιω + β|z|2 + I(t).
+
+(12)
+
+ṙ = µr + βr3 + A(t) cos ψ
+(13)
+A(t)
+ψ̇ = Ω −
+sin ψ
+r
+= 0. For fixed β , if µ ≥ 0, the
+In the absence of an external signal, the system undergoes Hopf bifurcation at µ√
+µ
+system has an unstable fixed point at r∗ = 0 and a stable fixed point as r∗ =
+β , and such that the system
+
+exhibits self-sustained oscillations with amplitude
+
+√µ
+
+β . When
+
+µ < 0, r∗ = 0 is the only stable fixed point of
+
+the system; in which case there is no oscillations. The proposed oscillator neural network model consists of
+successive layers of static, dense or convolutional layers with nonlinear activation and dynamic Hopf oscillator
+layers. A general oscillator neural network is depicted in Fig. 9. There are three modes in which an input,
+zin (t), can be presented to the oscillator layer for forward propagation; either as external input I(t), referred to
+as resonator mode, or as input to the amplitude µ(t), commonly referred as amplitude modulation mode, or as
+input to the frequency ω(t), referred to as frequency modulation mode, Fig. 10). The method of forward pass for
+the three modes of input to a single oscillator unit is described below,
+1. Resonator mode (Input presented as I(t)): In the presence of an external complex periodic driving of angular frequency ω0 , zin (t) = I(t) = I0 eιω0 t , Eq. (13) for the case of supercritical Hopf bifurcation transforms
+to,
+
+Scientific Reports |
+
+(2025) 15:40968
+
+| https://doi.org/10.1038/s41598-025-24837-4
+
+10
+
+www.nature.com/scientificreports/
+
+Figure 11. Driven behaviour of a supercritical Hopf oscillator under strong forcing. Steady-state amplitude
+and relative phase as a function of frequency difference describe the resonance characteristics. The parameters
+used are (µ = 1, β1 = −100, β2 = 0, I0 = 0.2).
+
+Figure 12. The bandwidth of the resonant curve increases with increasing β . The curves are normalized to 1 to
+accentuate the effect on the bandwidth.
+
+ṙ = µr + βr3 + κI I0 cos ψ
+(14)
+I0
+ψ̇ = Ω − κI
+sin ψ
+r
+
+where ψ = θ − ω0 t is the relative phase and Ω = ω − ω0 is the difference between the angular frequencies
+of the oscillator and the external input, respectively. The steady state solution of the system can be analyzed
+by fixed point analysis. The fixed points of the system is obtained by solving ṙ, ψ̇ = 0 simultaneously. In the
+presence of strong forcing (I0 ≈ 10−1 ), the behavior of a supercritical Hopf oscillator is given in Fig. 11. The
+oscillator shows resonance in a small range of frequencies around its natural frequency. The oscillator activation is then in a frequency locked state with the input signal i.e., the frequency of the oscillator activation is
+equal to the frequency of the input signal. Furthermore, within the smaller range of frequency, the oscillator
+activation is in a phase locked state to the input signal, see Fig. 11. Beyond this regime, the system undergoes
+phase slip. As β increases, the bandwidth of the resonant curve increases, see Fig. 12.
+Scientific Reports |
+
+(2025) 15:40968
+
+| https://doi.org/10.1038/s41598-025-24837-4
+
+11
+
+www.nature.com/scientificreports/
+We note that the resonance described in Fig. 11 is only valid for when the input∑is of the particular form,
+n
+I(t) = I0 eιω0 t . In the case I(t) is composed of n−complex sinusoids, I(t) = i=1 Ii eιωi t , the resonant
+tuning curves depend on Ii and ωi . The dynamical equations are transformed to
+ṙ = µr + βr3 + κI
+
+N
+∑
+i=1
+
+Ii cos(θ − ωi t)
+
+κI ∑
+θ̇ = ω −
+Ii sin(θ − ωi t)
+r
+N
+
+(15)
+
+i=1
+
+where ωi is the angular frequency of the input signal is kept constant, and ω is the intrinsic frequency of the
+oscillator is allowed to vary. For ω closer to ωk , we introduce the variables ψ = θ − ωk t and average the equation for them, we get Eq. (14). Therefore within a small neighborhood of ωk , we get a similar resonant curve
+as in Fig. 11. This aligns with numerical simulations as described in Figs. 13 and 14.
+2. Amplitude Modulation (Input presented as µ(t)): In this case, with zin (t) as input to the r equation of the
+oscillator, the dynamical equations are given by,
+µ(t) = (µ0 + κµ ℜ(zin (t)))
+r˙i = µ(t)ri + βri3
+
+θ˙i = ωi
+
+(16)
+
+(17)
+
+where, ℜ denotes the real part of the complex number. Since the amplitude of the oscillator is a positive quantity,
+one must ensure that, κµ min(ℜ(zin )) + µ0 > 0 where min(ℜ(zin )) is the minimum value of ℜ(zin (t)).
+3. Frequency Modulation (Input presented as ω(t)): In this case, zin (t) is given as input to the θ equation of
+the oscillator. In this case, the input modulates the effective oscillator frequency as follows:
+r˙i = µri + βri3
+(18)
+θ˙i = ωi + κω ℜ(zi (t))
+
+In the latter two modes of the input, the Hopf oscillation activation gets modulated by the input oscillations,
+hence the name. In this paper, we only use the first two modes of input presentation to the neural oscillator.
+The above differential equations are solved from t = 0 . . . T using Forward Euler method with fixed time step
+relevant to the dataset. Suppose the solution to either of the above systems is given {r, θ}, then the output is
+given by,
+Zd (t) = (r cos θ + ι r sin θ)(19)
+
+As depicted in Fig. 9, the complex activation, Eq. (19), of the oscillator layer feeds into a static layer. The complex
+nonlinear activation, is then applied as follows,
+Zs (t) = f(ℜ(Zd (t))) + ιf(ℑ(Zd (t)))(20)
+
+Figure 13. We show the resonant tuning curve for n = 2 with equal (Left) and unequal (Right) strength of
+forcing with I1 /I2 = 0.5. The other parameters are µ = 1, β = 20.
+
+Scientific Reports |
+
+(2025) 15:40968
+
+| https://doi.org/10.1038/s41598-025-24837-4
+
+12
+
+www.nature.com/scientificreports/
+
+Figure 14. Starting from top-left and moving clockwise, the resonant tuning curves are presented for
+incremental ω2 .
+
+Figure 15. Convolutional Oscillatory block: feature maps obtained after convolutional operation on input
+image at time t is given as input I(t) in one-to-one fashion to oscillatory block of dimension equal to that of
+feature maps to obtain spatio-temporal feature maps.
+
+point wise in time. Where ℜ, ℑ denote the real part and imaginary part of the complex numbers. The complex
+nonlinear activation can be ReLU, tanh, or sigmoid function.
+All the functions mentioned above are piecewise continuously differentiable. We use automatic differentiating
+feature (autograd) of TensorFlow library to calculate the gradients for backpropogation to update network
+weights.
+
+Oscillatory convolutional neural network (OCNN)
+
+In our proposed OCNN model, due to the presence of oscillatory elements, neurons of higher layers possess
+spatio-temporal responses. Arrangement of oscillators are identical to the input feature maps to maintain the
+spatial information. The intrinsic frequencies of the oscillators are sampled from a uniform random distribution
+of appropriate range. The frequency distribution is passed through a Gaussian blur of kernel size 3x3 across the
+2D arrangements of oscillators in each channel. Hierarchical arrangements of such pairs of convolution and
+oscillators enable learning and detection of features at different levels of complexities in spatiotemporal scale,
+see Fig. 15.
+
+Scientific Reports |
+
+(2025) 15:40968
+
+| https://doi.org/10.1038/s41598-025-24837-4
+
+13
+
+www.nature.com/scientificreports/
+Classification using oscillatory neural network
+
+Due to the dynamic nature of the DONN model, the output of the network is always a time series. If the network
+is tasked with a classification problem, the labels have to be defined differently. In order to have an equivalent
+classification score for oscillator activation, we use the ramp approach to decide the predicted class. Ramp-like
+classifications are often used in biological models as they closely replicate the race-based threshold criterion to
+select the winner neurons56. For each time step, all classes’ (corresponding neurons in the last layer) desired
+predictions are zero, except for the desired class where the desired value rises linearly. The predicted class is
+decided by selecting the neuron which has the maximum average across time steps.
+
+Discussions and concluding remarks
+
+We present a broad class of trainable deep oscillatory neural networks that can be trained on a variety of
+classification problems. We also presented an oscillatory analog of CNNs called as OCNNs that can be used to
+classify videos. We argue that the proposed class of DONNs are able to overcome some longstanding limitations
+of the existing oscillatory network models in computational neuroscience and in artificial neural networks.
+In computational neuroscience modelling, oscillatory neural networks have been used in several subdomains
+of neuroscience. For instance, rhythmic movements underlying locomotion are thought to be driven by special
+neural circuits known as Central Pattern Generators (CPGs), capable of generating oscillatory dynamics57–60.
+Thus oscillatory networks have been used to model the rhythmic movements of locomotion in bipeds or
+quadrupeds48,61, or swimming movements50, and rhythmic movements of a robotic hand49. Some early models
+of locomotion used fixed connections, with bio-inspired architecture, but later models like those from Ijspeert
+and colleagues62 are trainable models. However, this latter class of models are purely generative models i.e. they
+are not I/O models and generate an output without any input.
+Additionally, although our modeling strategy relies on the hypothesis that information is encoded in the
+ensemble activity of neurons, Spiking Neural Networks (SNNs) have long been regarded as the prototypical
+framework for brain-inspired computing, owing to their biologically plausible learning mechanisms.
+Unsupervised approaches like spike-time-dependent plasticity (STDP) depend on the specification of an
+integration window to infer correlated versus uncorrelated activity, with synaptic weights subsequently updated
+according to Hebbian learning. The time window integration definition is nebulous which can result in inaccurate
+inferences. The DONN approach offers several mechanistic advantages over discrete spike-timing methods.
+The complex-valued representation in DONN enables the encoding of both amplitude and phase information
+simultaneously, providing a richer representational space than binary spike events. The continuous phase/
+amplitude variables of Hopf oscillators admit direct, low-dimensional measures (phase synchrony, amplitude
+envelopes, spectral content) that are straightforward to visualize and interpret, improving transparency relative
+to spike-raster statistics, and permits widely applicable analytic approximations (statistical mechanics tools −
+phase reduction through an order parameter) that can help explain why particular frequency and coupling
+choices yield binding.
+Recent years have witnessed rapid advances in spiking neural networks (SNNs), motivated by their eventdriven computation, energy efficiency, and biological plausibility. For instance, Stanojevic et al.63 demonstrated
+high-performance deep SNNs with ultra-low activity budgets, achieving competitive accuracy with only ∼0.3
+spikes per neuron. Shen et al.64 proposed an efficient continual learning framework based on sparse selective
+activation, enabling SNNs to balance stability and plasticity in dynamic environments. Structural innovations
+have also been introduced: Shi et al.65 developed the SpikingResformer, which bridges ResNet and Vision
+Transformer architectures in the spiking domain, while Xu et al.66 integrated a spiking convolutional block
+attention module to enhance recurrent architectures for adaptive history reserving. More recently, Shen et al.67
+introduced temporal attention-guided adaptive fusion to address imbalanced multi-modal learning in SNNs.
+The proposed Deep Oscillatory Neural Network framework complements these efforts (brain-inspired
+computing) by adopting this fundamentally different representational paradigm. Rather than encoding
+information through discrete spike events, DONN leverages the continuous dynamics and the nonlinear
+interactions among Hopf oscillators. Further, we have shown that the STDP kernel emerges in a pair of coupled
+Hopf oscillators whose weights are trained using the Hebb’s rule.
+When it comes to applications of oscillatory networks in sensory processing, an important class of models is
+dedicated to feature binding. The problem of feature binding addresses the question of how the brain binds the
+different sensory characteristics like color, form, texture to construct the presentation of a single object. It has
+been proposed that such binding can be achieved temporally by synchronizing the oscillations underlying various
+sensory characteristics, a mechanism known as temporal feature binding68. A number of oscillatory neural
+networks have been proposed to describe temporal feature binding in perception69, multisensory integration70,
+working memory71. Oscillatory neural networks are naturally suited to modelling auditory processing of music,
+thanks to the intrinsic rhythmicity of the signal, and have therefore been applied to music perception34,55. The
+aforementioned class of oscillatory neural networks either have fixed connections or are trained by unsupervised
+learning in cases where learning occurs. Whereas, in the current work, the proposed network is trainable using
+supervised-backpropagation and can be generalized to multiple paradigms.
+In the temporal binding analysis case study, we have showed that how color-selective and orientationselective oscillators are synchronized temporally to encode the features from the input video. Emergence of
+synchrony between desired oscillatory groups to learn the task shows the proposed class of models can be used
+to explain feature binding mechanisms. The current work only showed the feature binding between oscillatory
+groups from the same layer and it can extended to show the emergence of hierarchical features representations at
+different layers. Such a network will be a good model of the entire visual system pathway and can capture complex
+phenomena such as how neurons in different levels synchronize to solve aperture problem72. Although stimulusinduced synchronization is often associated with increased firing rates of responding neurons, our modeling
+Scientific Reports |
+
+(2025) 15:40968
+
+| https://doi.org/10.1038/s41598-025-24837-4
+
+14
+
+www.nature.com/scientificreports/
+approach is primarily based on reflecting the mesoscopic view of brains activity, where ensemble synchrony can
+also occur in the absence of firing-rate changes at the single-neuron level. In such cases, conventional singleunit methods are insufficient, as spikes from a single neuron do not reveal the cooperative performance of the
+network. By contrast, the oscillatory framework of DONN explicitly encodes ensemble synchrony in continuous
+phase relationships, making such cooperative dynamics directly observable and quantifiable. Moreover,
+viewing the activity of the non oscillatory layers as rate codes, the mean field activity of the neural Hopf layers
+representing the spatial-temporal statistical properties can serve as a useful reference to which activity of single
+static neurons can be related.
+Then there is a rich body of modelling literature that applies oscillatory neural networks to model brain
+dynamics at large scale. These models are calibrated by various types of functional readouts of the brain like eg
+fMRI42,73, Electroencephalogram (EEG)46,74–76, or Magnetoencephalogram (MEG)77. In addition to describing
+the normal brain, this class of models have been applied to model brain dynamics in conditions of brain disorders
+including Alzheimers78, Stroke79 , Parkinson’s disease80 etc. In this class of models, typically, the network
+connections are not a result of learning but are obtained from the empirical structural connectivity of the brain.
+However, a recent modelled study had proposed use of complex-valued connections in which the magnitudes
+are obtained from structural connectivity while the phase is learnt by a modified form of Hebbian learning43.
+Apart from the aforementioned biologically oriented examples, there have been a range of artificial
+engineering applications of oscillatory neural networks. An important class refers to associative memory
+models. Earliest associative memory models are based on fixed point dynamics81,82, which have low biological
+plausibility and are artificial since memories in the brain are necessarily composed of neural oscillations83,84.
+This motivation had inspired a range of oscillatory associative memories85,86. In the earliest models of oscillatory
+associative memories all the oscillators had the same intrinsic frequency. Deficiencies in storage capacity shown
+by oscillatory associative memories that operate at a single frequency are overcome by generalizations that
+involve an addition of harmonics to the dynamics, apart from the fundamental frequency87–89. Note that in this
+entire class of oscillatory neural networks are trained by unsupervised learning, more specifically a variation
+of Hebbian learning. Other artificial applications of oscillatory neural networks include image segmentation,
+auditory scene segmentation and object detection. Note that the class of oscillatory networks described in this
+para involve an unsupervised learning rules like Hebbian learning or its variations and therefore cannot learn
+I/O behavior.
+Recent years saw a surge of interest in the area of hardware implementations of oscillatory neural networks90.
+In the 1950s, von Neumann had proposed that oscillators can be used as logic gates and digital information can
+be stored in the form of phase differences91,92. Current oscillatory neural hardware implementations encompass
+associative memories93, image and audio segmentation94,95 and memristor models of locomotor rhythms61.
+Thus, the hardware implementations of the above oscillatory networks also cannot learn I/O behavior. These
+implementations of neural networks, often called neuromorphic systems, often use spiking neuron networks96.
+Interestingly, the boundary between oscillator-based compute (OBC) circuits and spiking neural networks
+(SNNs) is somewhat diffuse: OBC circuit designs share many functional and architectural features with
+spiking neurons. Although spiking neural networks often rely on oscillatory mechanisms to generate temporal
+signals, they generally do not exploit the nonlinear interactions between oscillators that can give rise to rich
+dynamical phenomena such as resonance, entrainment, and synchronization90. In contrast, the proposed Deep
+Oscillatory Neural Network (DONN) explicitly harnesses these nonlinear interactions, using phase, amplitude,
+and frequency dynamics as computational primitives to achieve biologically grounded and interpretable
+representations, at low power. Further, there are possible implementation of oscillators where energy is recycled
+among oscillators instead of being discharged, which could be a suitable candidate for OBC. There is a possibility
+of both these fields to merge for computationally and power efficient hardware implementations.
+The current implementation of DONN is restricted to input-driven feedforward connections, however the
+activities of cortical neuronal ensembles at the mesoscopic scale is both stimuli-driven and self-organized. Such
+neuronal organization will be more biologically-plausible and better representatives. We have restricted our
+current implementation to a supervised learning framework. However, many interesting biological phenomena
+are observed in Reinforcement learning framework; such high vs low gamma in spatial learning observed
+in striatum97, self organized oscillations emerging during memory consolidation in sleep98, and prominent
+synchronized beta frequency in Subthalamic Nucleus of the Basal ganglia observed in Bradykinesia99. Biological
+systems excel at solving the binding problem, the segmenting cluttered scenes and the analysis of complex
+time series (e.g., spoken language). As future work, we aim to extend our networks to describe such complex
+neurological phenomena.
+The broad class of DONNs described in this paper, which to our knowledge is perhaps the first demonstration
+of a deep oscillatory neural network with multiple frequencies, trainable in an I/O fashion, is expected to be a
+valuable addition to oscillatory neural network literature.
+
+Data availability
+
+Data is provided within the manuscript or supplementary information files.
+
+Code availability
+
+Source code can be accessed in the Google Drive link.
+Received: 29 July 2025; Accepted: 15 October 2025
+
+Scientific Reports |
+
+(2025) 15:40968
+
+| https://doi.org/10.1038/s41598-025-24837-4
+
+15
+
+www.nature.com/scientificreports/
+
+References
+
+1. Kell, A. J., Yamins, D. L., Shook, E. N., Norman-Haignere, S. V. & McDermott, J. H. A task-optimized neural network replicates
+human auditory behavior, predicts brain responses, and reveals a cortical processing hierarchy. Neuron 98, 630-644.e16 (2018).
+2. Huang, Y. et al. Brain-inspired robust vision using convolutional neural networks with feedback (2019). ​h​t​t​p​s​:​/​/​o​p​e​n​r​e​v​i​e​w​.​n​e​t​/​f​o​
+r​u​m​?​i​d​=​r​y​l​U​4​m​t​U​I​S​​​​.​​​
+3. Wardle, S. G., Taubert, J., Teichmann, L. & Baker, C. I. Rapid and dynamic processing of face pareidolia in the human brain. Nat.
+Commun. 11, 4518 (2020).
+4. Wardle, S. G. & Baker, C. I. Recent advances in understanding object recognition in the human brain: deep neural networks,
+temporal dynamics, and context. F1000Research9 (2020).
+5. Geirhos, R. et al. Imagenet-trained cnns are biased towards texture; increasing shape bias improves accuracy and robustness
+(2022). arXiv:1811.12231.
+6. Cichy, R. M., Khosla, A., Pantazis, D., Torralba, A. & Oliva, A. Comparison of deep neural networks to spatio-temporal cortical
+dynamics of human visual object recognition reveals hierarchical correspondence. Sci. Rep. 6, 27755 (2016).
+7. Bick, C., Goodfellow, M., Laing, C. R. & Martens, E. A. Understanding the dynamics of biological and neural oscillator networks
+through exact mean-field reductions: a review. J. Math. Neurosci. 10, 9 (2020).
+8. Chinichian, N. et al. Modeling brain network flexibility in networks of coupled oscillators: a feasibility study. Sci. Rep. 14, 5713
+(2024).
+9. Laing, C. R. Phase oscillator network models of brain dynamics. Comput. Models Brain Behav. 505–517 (2017).
+10. Kahana, M. J. The cognitive correlates of human brain oscillations. J. Neurosci. 26, 1669–1672 (2006).
+11. Dang-Vu, T. & Courtemanche, R. Neuronal Oscillations of Wakefulness and Sleep: Windows on Spontaneous Activity of the Brain
+(Springer, New York, 2020).
+12. Buzsáki, G. & Draguhn, A. Neuronal oscillations in cortical networks. Science 304, 1926–1929 (2004).
+13. Blanco, J. A. et al. Data mining neocortical high-frequency oscillations in epilepsy and controls. Brain 134, 2948–2959 (2011).
+14. Akeju, O. & Brown, E. N. Neural oscillations demonstrate that general anesthesia and sedative states are neurophysiologically
+distinct from sleep. Curr. Opin. Neurobiol. 44, 178–185 (2017).
+15. Xiao, J. & Zhou, Z. Research progress of rnn language model (2020).
+16. Otter, D. W., Medina, J. R. & Kalita, J. K. A survey of the usages of deep learning for natural language processing. IEEE Trans.
+Neural Netw. Learn. Syst. 32, 604–624 (2020).
+17. Hewamalage, H., Bergmeir, C. & Bandara, K. Recurrent neural networks for time series forecasting: Current status and future
+directions. Int. J. Forecast. 37, 388–427 (2021).
+18. Lim, B. & Zohren, S. Time-series forecasting with deep learning: a survey. Phil. Trans. R. Soc. A 379, 20200209 (2021).
+19. Briot, J.-P. & Pachet, F. Deep learning for music generation: challenges and directions. Neural Comput. Appl. 32, 981–993 (2020).
+20. Xu, Z., Hu, J. & Deng, W. Recurrent convolutional neural network for video classification (2016).
+21. Hochreiter, S. & Schmidhuber, J. Long short-term memory. Neural Comput. 9, 1735–1780. ​h​t​t​p​s​:​/​/​d​o​i​.​o​r​g​/​1​0​.​1​1​6​2​/​n​e​c​o​.​1​9​9​7​.​9​.​8​.​
+1​7​3​5​​​​ (1997).
+22. Chung, J., Gulcehre, C., Cho, K. & Bengio, Y. Empirical evaluation of gated recurrent neural networks on sequence modeling
+(2014). arXiv:1412.3555.
+23. Kumari, S., Chandrasekaran, V. & Chakravarthy, V. The flip-flop neuron: a memory efficient alternative for solving challenging
+sequence processing and decision-making problems. Neural Comput. Appl. (2023).
+24. Gopalakrishnan, K. & Salem, F. M. Sentiment analysis using simplified long short-term memory recurrent neural networks (2020).
+arXiv:2005.03993.
+25. Graves, A. Generating sequences with recurrent neural networks (2014). arXiv:1308.0850.
+26. Tan, Z. et al. Neural machine translation: A review of methods, resources, and tools. AI Open 1, 5–21 (2020).
+27. Shi, X. et al. Convolutional lstm network: A machine learning approach for precipitation nowcasting (2015). arXiv:1506.04214.
+28. Yu, H., Lei, X., Song, Z., Liu, C. & Wang, J. Supervised network-based fuzzy learning of eeg signals for alzheimer’s disease
+identification. IEEE Trans. Fuzzy Syst. 28, 60–71 (2019).
+29. Yu, H., Zeng, F., Liu, D., Wang, J. & Liu, J. Neural manifold decoder for acupuncture stimulations with representation learning: An
+acupuncture-brain interface. IEEE J. Biomed. Health Inf. (2025).
+30. Atabay, H. A. Deep residual learning for tomato plant leaf disease identification. J. Theor. Appl. Inf. Technol. 95 (2017).
+31. Rajalingam, B., Priya, R. & Scholar, R. Review of multimodality medical image fusion using combined transform techniques for
+clinical application. Int. J. Sci. Res. Comp Sci. App. 7, 1–8 (2018).
+32. Large, E. W. et al. Dynamic models for musical rhythm perception and coordination. Front. Comput. Neurosci. 17 (2023).
+33. Hinton, G. et al. Deep neural networks for acoustic modeling in speech recognition: The shared views of four research groups.
+IEEE Signal Process. Mag. 29, 82–97 (2012).
+34. Chou, S.-Y., Cheng, K.-H., Jang, J.-S. R. & Yang, Y.-H. Learning to match transient sound events using attentional similarity for
+few-shot sound recognition (2019).
+35. Pinotsis, D., Robinson, P., beim Graben, P. & Friston, K. Neural masses and fields: modeling the dynamics of brain activity (2014).
+36. Cowan, W. M., Gottlieb, D., Hendrickson, A. E., Price, J. & Woolsey, T. The autoradiographic demonstration of axonal connections
+in the central nervous system. Brain Res. 37, 21–51 (1972).
+37. Nagumo, J., Arimoto, S. & Yoshizawa, S. An active pulse transmission line simulating nerve axon. Proc. IRE 50, 2061–2070 (1962).
+38. Cumin, D. & Unsworth, C. Generalising the kuramoto model for the study of neuronal synchronisation in the brain. Phys. D 226,
+181–196 (2007).
+39. Breakspear, M., Heitmann, S. & Daffertshofer, A. Generative models of cortical oscillations: neurobiological implications of the
+kuramoto model. Front. Hum. Neurosci. 4, 190 (2010).
+40. Yu, H. et al. Multiple stochastic resonances and oscillation transitions in cortical networks with time delay. IEEE Trans. Fuzzy Syst.
+28, 39–46 (2020).
+41. Yu, H. et al. Firing rate oscillation and stochastic resonance in cortical networks with electrical–chemical synapses and time delay.
+IEEE Trans. Fuzzy Syst. 28, 5–13 (2020).
+42. Jirsa, V. & Woodman, M. M. & Domide, L (Simulation environment for large-scale brain networks, The virtual brain (tvb), 2022).
+43. Bandyopadhyay, A., Ghosh, S., Biswas, D. & et al. A phenomenological model of whole brain dynamics using a network of neural
+oscillators with power-coupling. Sci. Rep.13, 16935 (2023).
+44. Cabral, J., Hugues, E., Sporns, O. & Deco, G. Role of local network oscillations in resting-state functional connectivity. Neuroimage
+57, 130–139 (2011).
+45. Bey, P. et al. Lesion aware automated processing pipeline for multimodal neuroimaging stroke data and the virtual brain (tvb).
+bioRxiv 2023–08 (2023).
+46. Sanz Leon, P. et al. The virtual brain: a simulator of primate brain network dynamics. Front. Neuroinform. 7, 10 (2013).
+47. Deco, G., Jirsa, V., Sporns, O. & Kötter, R. Key role of coupling, delay, and noise in resting brain fluctuations. Proc. Natl. Acad. Sci.
+106, 10302–10307 (2009).
+48. Dutra, M., de Pina Filho, A. & Romano, V. Modeling of a bipedal locomotor using coupled nonlinear oscillators of van der pol. Biol.
+Cybern. 88, 286–292 (2003).
+49. Lakatos, D., Petit, F. & Albu-Schäffer, A. Nonlinear oscillations for cyclic movements in human and robotic arms. IEEE Trans. Rob.
+30, 865–879 (2014).
+
+Scientific Reports |
+
+(2025) 15:40968
+
+| https://doi.org/10.1038/s41598-025-24837-4
+
+16
+
+www.nature.com/scientificreports/
+50. Cao, Y., Bi, S., Cai, Y. & Zhang, L. Applying coupled nonlinear oscillators to imitate swimming modes of cow-nosed rays (2013).
+51. Maas, A. L. et al. Learning word vectors for sentiment analysis (2011).
+52. Liu, J., Luo, J. & Shah, M. Recognizing realistic actions from videos “in the wild” (2009).
+53. Lindsey, J., Ocko, S. A., Ganguli, S. & Deny, S. A unified theory of early visual representations from retina to cortex through
+anatomically constrained deep cnns. arXiv:1901.00945 (2019).
+54. Engel, A. K. & Singer, W. Temporal binding and the neural correlates of sensory awareness. Trends Cogn. Sci. 5, 16–25 (2001).
+55. Kim, J. C. & Large, E. Signal processing in periodically forced gradient frequency neural networks. Front. Comput. Neurosci. 9
+(2015).
+56. Kumari, S. & Chakravarthy, V. S. Biologically inspired image classifier based on saccadic eye movement design for convolutional
+neural networks. Neurocomputing 513, 294–317 (2022).
+57. Alexander, R. M. The gaits of bipedal and quadrupedal animals. Int. J. Robot. Res. 3, 49–59 (1984).
+58. Maufroy, C., Kimura, H. & Takase, K. Towards a general neural controller for quadrupedal locomotion. Neural Netw. 21, 642–653
+(2008).
+59. Grillner, S. Neural networks for vertebrate locomotion. Sci. Am. 274, 64–69 (1996).
+60. Ivashko, D. G., Prilutsky, B. I., Markin, S. N., Chapin, J. K. & Rybak, I. A. Modeling the spinal cord neural circuitry controlling cat
+hindlimb movement during locomotion. Neurocomputing 52–54, 331–338 (2003).
+61. Bonagiri, A. & Biswas, D. & Chakravarthy, S (Modeling and analysis. IEEE Transactions on Neural Networks and Learning
+Systems, Coupled memristor oscillators for neuromorphic locomotion control, 2022).
+62. Ijspeert, A. J. Central pattern generators for locomotion control in animals and robots: A review. Neural Netw. 21, 642–653 (2008).
+63. Stanojevic, A. et al. High-performance deep spiking neural networks with 0.3 spikes per neuron. Nat. Commun. 15, 6793 (2024).
+64. Shen, J., Ni, W., Xu, Q. & Tang, H. Efficient spiking neural networks with sparse selective activation for continual learning ​h​t​t​p​s​:​/​/​d​o​i​
+.​o​r​g​/​1​0​.​1​6​0​9​/​a​a​a​i​.​v​3​8​i​1​.​2​7​8​1​7​​​​ (2024).
+65. Shi, X., Hao, Z. & Yu, Z. Spikingresformer: Bridging resnet and vision transformer in spiking neural networks. arXiv:2403.14302
+(2024).
+66. Xu, Q. et al. Enhancing adaptive history reserving by spiking convolutional block attention module in recurrent neural networks
+(2024). arXiv:2401.03719.
+67. Shen, J. et al. Spiking neural networks with temporal attention-guided adaptive fusion for imbalanced multi-modal learning
+(2025). arXiv:2505.14535.
+68. Gray, C., König, P., Engel, A. & Singer, W. Oscillatory responses in cat visual cortex exhibit inter-columnar synchronization which
+reflects global stimulus properties. Nature 338, 334–337 (1989).
+69. Isokawa, T., Nishimura, H., Kamiura, N. & Matsui, N. Perceptual binding by coupled oscillatory neural network (2005).
+70. Rao, A. R. An oscillatory neural network model that demonstrates the benefits of multisensory learning. Cogn. Neurodyn. 12,
+481–499 (2018).
+71. Pina, J. E., Bodner, M. & Ermentrout, B. Oscillations in working memory and neural binding: A mechanism for multiple memories
+and their interactions. PLoS Comput. Biol. 14, e1006517 (2018).
+72. Heeger, D. J. Optical flow using spatiotemporal filters. Int. J. Comput. Vis. 1, 279–302 (1988).
+73. Sip, V. et al. Characterization of regional differences in resting-state fmri with a data-driven network model of brain dynamics. Sci.
+Adv. 9, eabq7547 (2023).
+74. Ghosh, S., Biswas, D., Vijayan, S. & Chakravarthy, V. S. Modeling whole brain electroencephalogram (eeg) in a spatially organized
+oscillatory neural network. bioRxiv2023.07.16.549247 (2023).
+75. Al-Hossenat, A., Wen, P. & Li, Y. Large-scale brain network model and multi-band electroencephalogram rhythm simulations. Int.
+J. Biomed. Eng. Technol. 38, 395–409 (2022).
+76. Schirner, M., McIntosh, A. R., Jirsa, V., Deco, G. & Ritter, P. Inferring multi-scale neural mechanisms with brain network modelling.
+elife 7, e28927 (2018).
+77. Schäfer, C. B., Morgan, B. R., Ye, A. X., Taylor, M. J. & Doesburg, S. M. Oscillations, networks, and their development: Meg
+connectivity changes with age. Hum. Brain Mapp. 35, 5249–5261 (2014).
+78. Yang, L. et al. Alzheimer’s disease: Insights from large-scale brain dynamics models. Brain Sci. 13, 1133 (2023).
+79. Idesis, S. et al. Inferring the dynamical effects of stroke lesions through whole-brain modeling. NeuroImage: Clin. 36, 103233
+(2022).
+80. Kim, J. et al. Abnormal intrinsic brain functional network dynamics in parkinson’s disease. Brain 140, 2955–2967 (2017).
+81. Hopfield, J. J. Neural networks and physical systems with emergent collective computational abilities. Proc. Natl. Acad. Sci. 79,
+2554–2558 (1982).
+82. Hopfield, J. J. Neurons with graded response have collective computational properties like those of two-state neurons. Proc. Natl.
+Acad. Sci. 81, 3088–3092 (1984).
+83. Freeman, W. J. Mass Action in the Nervous System (Academic Press, 1975).
+84. Freeman, W. J. & Barrie, J. M. Analysis of spatial patterns of phase in neocortical gamma eegs in rabbit. J. Neurophysiol. 84,
+1266–1278 (2000).
+85. Imai, Y. & Taniguchi, T. Associative memory by virtual oscillator network based on single spin-torque oscillator. Sci. Rep. 13, 15809
+(2023).
+86. Chakravarthy, S. & Ghosh, J. A complex-valued associative memory for storing patterns as oscillatory states. Biol. Cybern. 75,
+229–238 (1996).
+87. Aonishi, T. Phase transitions of an oscillator neural network with a standard hebb learning rule. Phys. Rev. E 58, 4865–4871 (1998).
+88. Nishikawa, T., Hoppensteadt, F. C. & Lai, Y.-C. Oscillatory associative memory network with perfect retrieval. Phys. D 197, 134–
+148 (2004).
+89. Follmann, R., Macau, E. E. N., Rosa, E. & Piqueira, J. R. C. Phase oscillatory network and visual pattern recognition. IEEE Trans.
+Neural Netw. Learn. Syst. 26, 1539–1544 (2015).
+90. Csaba, G. & Porod, W. Noise immunity of oscillatory computing devices. IEEE J. Explor. Solid State Comput. Dev. Circ. 6, 164–169
+(2020).
+91. Von Neumann, J., Churchland, P. M. & Von Neumann, K. The Computer and the Brain (Yale University Press, 2000).
+92. Wigington, R. L. A new concept in computing. Proc. IRE 47, 516–523 (1959).
+93. Nikonov, D. E., et al. Coupled-oscillator associative memory array operation for pattern recognition. IEEE J. Explor. Solid-State
+Comput. Devices Circ. 1, 85–93 (2015).
+94. Rudner, T., Porod, W. & Csaba, G. Design of oscillatory neural networks by machine learning. Front. Neurosci. 18 (2024).
+95. Abernot, M. et al. Digital implementation of oscillatory neural network for image recognition applications. Front. Neurosci. 15
+(2021).
+96. Rathi, N. et al. Exploring neuromorphic computing based on spiking neural networks: Algorithms to hardware. ACM Comput.
+Surv. 55, 243 (2023).
+97. Van Der Meer, M. A. & Redish, A. D. Low and high gamma oscillations in rat ventral striatum have distinct relationships to
+behavior, reward, and spiking activity on a learned spatial decision task. Front. Integr. Neurosci. 3, 544 (2009).
+98. Buzsáki, G. Rhythms of the Brain (Oxford university press, 2006).
+99. Wilkins, K. B. et al. Bradykinesia and its progression are related to interhemispheric beta coherence. Ann. Neurol. 93, 1029–1039
+(2023).
+
+Scientific Reports |
+
+(2025) 15:40968
+
+| https://doi.org/10.1038/s41598-025-24837-4
+
+17
+
+www.nature.com/scientificreports/
+
+Acknowledgements
+
+The first author would like to acknowledge the financial assistance by Council for Scientific and Industrial Research (CSIR).
+
+Author contributions
+
+N.R.R, V.C. - Conceptualization, Methodology, Software, Validation, Writing - Original Draft, S.G, K.R., G.A.
+- Software V.S.C. - Conceptualization, Writing - Original Draft, Writing - Review & Editing, Supervision, Validation.
+
+Funding
+
+N.R.R. would like to acknowledge the financial assistance by Council for Scientific and Industrial Research
+(CSIR).
+
+Declarations
+Competing interests
+
+The authors declare no competing interests.
+
+Additional information
+
+Supplementary Information The online version contains supplementary material available at ​h​t​t​p​s​:​/​/​d​o​i​.​o​r​g​/​1​
+0​.​1​0​3​8​/​s​4​1​5​9​8​-​0​2​5​-​2​4​8​3​7​-​4​​​​.​​
+Correspondence and requests for materials should be addressed to V.S.C.
+Reprints and permissions information is available at www.nature.com/reprints.
+Publisher’s note Springer Nature remains neutral with regard to jurisdictional claims in published maps and
+institutional affiliations.
+Open Access This article is licensed under a Creative Commons Attribution-NonCommercial-NoDerivatives
+4.0 International License, which permits any non-commercial use, sharing, distribution and reproduction in
+any medium or format, as long as you give appropriate credit to the original author(s) and the source, provide
+a link to the Creative Commons licence, and indicate if you modified the licensed material. You do not have
+permission under this licence to share adapted material derived from this article or parts of it. The images or
+other third party material in this article are included in the article’s Creative Commons licence, unless indicated
+otherwise in a credit line to the material. If material is not included in the article’s Creative Commons licence
+and your intended use is not permitted by statutory regulation or exceeds the permitted use, you will need to
+obtain permission directly from the copyright holder. To view a copy of this licence, visit ​h​t​t​p​:​/​/​c​r​e​a​t​i​v​e​c​o​m​m​o​
+n​s​.​o​r​g​/​l​i​c​e​n​s​e​s​/​b​y​-​n​c​-​n​d​/​4​.​0​/​​​​.​​
+© The Author(s) 2025
+
+Scientific Reports |
+
+(2025) 15:40968
+
+| https://doi.org/10.1038/s41598-025-24837-4
+
+18
+
+

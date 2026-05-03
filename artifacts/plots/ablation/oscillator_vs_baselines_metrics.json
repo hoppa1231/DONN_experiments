@@ -1,0 +1,528 @@
+{
+  "existing": {
+    "table1_donn_ce_saved": {
+      "test_acc": 0.5799999833106995,
+      "test_loss": 0.6654694080352783,
+      "plot_mse": 0.0786760076880455,
+      "class_hist_true": [
+        96,
+        104
+      ],
+      "class_hist_pred": [
+        180,
+        20
+      ],
+      "epochs": 20,
+      "seed": 42,
+      "use_linear_frontend": true,
+      "hopf_input_scale": 5.0
+    },
+    "table1_donn_ramp_supplement": {
+      "variant": "paper_style_ramp_control",
+      "dataset_source": "supplement-notebook",
+      "test_acc": 0.47,
+      "val_acc": 0.5125,
+      "test_loss": 0.0836360827088356,
+      "accuracy_report": {
+        "acc_mean": 0.47,
+        "acc_sum": 0.47,
+        "acc_final": 0.61,
+        "acc_template_mse": 0.49,
+        "class_hist_true": [
+          96,
+          104
+        ],
+        "class_hist_mean": [
+          66,
+          134
+        ],
+        "class_hist_final": [
+          22,
+          178
+        ],
+        "class_hist_template_mse": [
+          54,
+          146
+        ]
+      },
+      "class_hist_true": [
+        96,
+        104
+      ],
+      "class_hist_pred": [
+        66,
+        134
+      ],
+      "epochs": 20,
+      "batch_size": 32,
+      "seed": 42,
+      "learning_rate": 0.001,
+      "units": 20,
+      "proj_dim": 20,
+      "hopf_input_scale": 0.1,
+      "min_omega_hz": 0.1,
+      "max_omega_hz": 20.0,
+      "samples_per_class": 500,
+      "num_steps": 1000,
+      "dt": 0.001,
+      "num_components": 5,
+      "assumptions": [
+        "paper-style ramp targets with MSE objective",
+        "Linear(20) is modeled as a real-valued TimeDistributed Dense before Hopf",
+        "Hidden readout uses oscillator amplitudes before tanh(20) -> output(2)",
+        "Oscillator frequencies are fixed, matching Table 1"
+      ]
+    },
+    "table1_donn_ramp_article": {
+      "variant": "paper_style_ramp_control",
+      "dataset_source": "article",
+      "test_acc": 0.38,
+      "val_acc": 0.38125,
+      "test_loss": 0.0834035724401474,
+      "accuracy_report": {
+        "acc_mean": 0.38,
+        "acc_sum": 0.38,
+        "acc_final": 0.515,
+        "acc_template_mse": 0.415,
+        "class_hist_true": [
+          96,
+          104
+        ],
+        "class_hist_mean": [
+          36,
+          164
+        ],
+        "class_hist_final": [
+          1,
+          199
+        ],
+        "class_hist_template_mse": [
+          41,
+          159
+        ]
+      },
+      "class_hist_true": [
+        96,
+        104
+      ],
+      "class_hist_pred": [
+        36,
+        164
+      ],
+      "epochs": 20,
+      "batch_size": 32,
+      "seed": 42,
+      "learning_rate": 0.001,
+      "units": 20,
+      "proj_dim": 20,
+      "hopf_input_scale": 0.1,
+      "min_omega_hz": 0.1,
+      "max_omega_hz": 20.0,
+      "samples_per_class": 500,
+      "num_steps": 1000,
+      "dt": 0.001,
+      "num_components": 5,
+      "assumptions": [
+        "paper-style ramp targets with MSE objective",
+        "Linear(20) is modeled as a real-valued TimeDistributed Dense before Hopf",
+        "Hidden readout uses oscillator amplitudes before tanh(20) -> output(2)",
+        "Oscillator frequencies are fixed, matching Table 1"
+      ]
+    },
+    "table2_donn": {
+      "test_mse": 0.05674475058913231,
+      "val_mse": 0.049821022897958755,
+      "epochs": 60,
+      "seed": 42,
+      "use_linear_frontend": true,
+      "use_input_skip": true,
+      "hopf_input_scale": 10.0,
+      "learning_rate": 0.01,
+      "units": 40,
+      "readout_channels": 64,
+      "temporal_kernel": 0,
+      "num_samples": 400,
+      "dt": 0.01,
+      "duration": 1.0
+    },
+    "table3_donn_and_numeric": {
+      "integration": {
+        "task": "integration",
+        "test_mse": 0.004002423025667667,
+        "val_mse": 0.00544545819427327,
+        "baseline_mse": 7.512718745716906e-12,
+        "test_corr": 0.8028829900371073,
+        "target_std": 0.10579058527946472,
+        "normalized_mse": 0.35762588756835656,
+        "baseline_normalized_mse": 6.712790457825852e-10,
+        "relative_rmse": 0.5980183003624191,
+        "r2": 0.6423741124316434
+      },
+      "differentiation": {
+        "task": "differentiation",
+        "test_mse": 19.65807342529297,
+        "val_mse": 18.066287011062165,
+        "baseline_mse": 0.00025585037656128407,
+        "test_corr": 0.9919365071017016,
+        "target_std": 32.91746520996094,
+        "normalized_mse": 0.018142126147902924,
+        "baseline_normalized_mse": 2.3612028026058228e-07,
+        "relative_rmse": 0.13469271007705994,
+        "r2": 0.9818578738520971
+      },
+      "_meta": {
+        "epochs": 30,
+        "batch_size": 16,
+        "seed": 42,
+        "learning_rate": 0.001,
+        "units": 20,
+        "hopf_input_scale": 5.0,
+        "readout_channels": 48,
+        "temporal_kernel": 33,
+        "use_linear_frontend": true,
+        "use_input_skip": true,
+        "num_samples": 200,
+        "dt": 0.001,
+        "duration": 1.0,
+        "num_components": 5,
+        "fmin_hz": 1.0,
+        "fmax_hz": 5.0
+      }
+    },
+    "table4_donn_1k1e": {
+      "variant": "paper_exact_control",
+      "assumption": "many_to_one_mse_on_one_hot_labels",
+      "article_architecture": "Embedding(100) -> Hopf(100) -> ReLU(100) -> Hopf(100) -> ReLU(100) -> tanh(20) -> output(2)",
+      "paper_reported_acc": 0.852,
+      "paper_reported_total_params": 26798,
+      "test_acc": 0.525390625,
+      "val_acc": 0.48859934853420195,
+      "test_loss": 0.371754914522171,
+      "epochs": 1,
+      "batch_size": 128,
+      "seed": 42,
+      "learning_rate": 0.001,
+      "vocab_size": 35000,
+      "max_len": 500,
+      "train_samples": 1024,
+      "test_samples": 1024,
+      "val_ratio": 0.3,
+      "embed_dim": 100,
+      "units": 100,
+      "proj_dim": 20,
+      "hopf_input_scale": 0.2,
+      "history": {
+        "loss": [
+          0.4627520442008972
+        ],
+        "val_loss": [
+          0.38999706506729126
+        ]
+      },
+      "total_params": 3542462,
+      "embedding_params": 3500000,
+      "non_embedding_params": 42462,
+      "param_gap_total_vs_paper": 3515664,
+      "param_gap_non_embedding_vs_paper": 15664
+    },
+    "table4_donn_2k2e": {
+      "variant": "paper_exact_control",
+      "assumption": "many_to_one_mse_on_one_hot_labels",
+      "article_architecture": "Embedding(100) -> Hopf(100) -> ReLU(100) -> Hopf(100) -> ReLU(100) -> tanh(20) -> output(2)",
+      "paper_reported_acc": 0.852,
+      "paper_reported_total_params": 26798,
+      "test_acc": 0.5244140625,
+      "val_acc": 0.509771986970684,
+      "test_loss": 0.25349313020706177,
+      "epochs": 2,
+      "batch_size": 128,
+      "seed": 42,
+      "learning_rate": 0.001,
+      "vocab_size": 35000,
+      "max_len": 500,
+      "train_samples": 2048,
+      "test_samples": 2048,
+      "val_ratio": 0.3,
+      "embed_dim": 100,
+      "units": 100,
+      "proj_dim": 20,
+      "hopf_input_scale": 0.2,
+      "history": {
+        "loss": [
+          0.32086241245269775,
+          0.2596312463283539
+        ],
+        "val_loss": [
+          0.2669171392917633,
+          0.25434592366218567
+        ]
+      },
+      "total_params": 3542462,
+      "embedding_params": 3500000,
+      "non_embedding_params": 42462,
+      "param_gap_total_vs_paper": 3515664,
+      "param_gap_non_embedding_vs_paper": 15664
+    },
+    "table4_bilstm_1k1e": {
+      "variant": "baseline_bilstm_control",
+      "test_acc": 0.576171875,
+      "val_acc": 0.5602605938911438,
+      "test_loss": 0.6918598413467407,
+      "train_samples": 1024,
+      "test_samples": 1024,
+      "epochs": 1,
+      "batch_size": 256,
+      "embed_dim": 100,
+      "lstm_units": 100,
+      "vocab_size": 35000,
+      "max_len": 500,
+      "seed": 42,
+      "learning_rate": 0.001,
+      "val_ratio": 0.3
+    },
+    "table5_ocnn_smoke": {
+      "variant": "table5_ocnn_synthetic_smoke",
+      "is_ucf11_reproduction": false,
+      "reason_not_ucf11": "No local UCF11/UCF50 video dataset was found in artifacts/ or the configured external root.",
+      "local_ucf_candidates": [],
+      "article_dataset": "UCF11 YouTube Action dataset; article appendix points to Kaggle UCF50 mirror",
+      "article_train_val": {
+        "train": 1290,
+        "validation": 305
+      },
+      "article_num_frames": 50,
+      "article_frame_size": [
+        48,
+        48,
+        3
+      ],
+      "article_architecture": "2 x OCNN (3x3,40), flatten, output (2); initial frequency range [1-15 Hz], input type I(t), trainable oscillator frequencies",
+      "paper_reported_ocnn_val_acc": 0.9864,
+      "paper_text_reports_figure4_acc": 0.9975,
+      "paper_reported_val_mse": 0.0564,
+      "smoke_dataset": {
+        "num_samples": 48,
+        "num_frames": 12,
+        "frame_size": 24,
+        "square_size": 5,
+        "num_classes": 2
+      },
+      "filters": 4,
+      "epochs": 2,
+      "batch_size": 8,
+      "learning_rate": 0.0001,
+      "seed": 42,
+      "total_params": 1394,
+      "history": {
+        "loss": [
+          0.9491468071937561,
+          0.8410923480987549
+        ],
+        "val_loss": [
+          0.9817374348640442,
+          0.8799130320549011
+        ]
+      },
+      "val_acc": 0.3333333333333333,
+      "val_loss": 0.8799130916595459,
+      "train_acc": 0.4722222222222222,
+      "train_loss": 0.7825693488121033
+    }
+  },
+  "new": {
+    "table1_fft_saved": {
+      "baseline": "fft_band_energy",
+      "dataset_source": "saved-arrays",
+      "test_acc": 1.0,
+      "class_hist_true": [
+        96,
+        104
+      ],
+      "class_hist_pred": [
+        96,
+        104
+      ]
+    },
+    "table1_fft_supplement": {
+      "baseline": "fft_band_energy",
+      "dataset_source": "supplement-notebook",
+      "test_acc": 1.0,
+      "class_hist_true": [
+        96,
+        104
+      ],
+      "class_hist_pred": [
+        96,
+        104
+      ]
+    },
+    "table1_fft_article": {
+      "baseline": "fft_band_energy",
+      "dataset_source": "article",
+      "test_acc": 0.995,
+      "class_hist_true": [
+        96,
+        104
+      ],
+      "class_hist_pred": [
+        95,
+        105
+      ]
+    },
+    "table2_temporal_conv_no_hopf": {
+      "baseline": "temporal_conv_no_hopf",
+      "test_mse": 2.684044361114502,
+      "val_mse": 2.537003993988037,
+      "epochs": 60,
+      "num_samples": 400,
+      "channels": 64
+    },
+    "table2_matched_no_hopf": {
+      "baseline": "matched_dense_temporal_no_hopf",
+      "test_mse": 0.2677001357078552,
+      "val_mse": 0.2726181149482727,
+      "epochs": 60,
+      "num_samples": 400,
+      "units": 40,
+      "channels": 64,
+      "temporal_kernel": 25
+    },
+    "table2_coherent_known_carrier": {
+      "baseline": "coherent_demod_known_carrier",
+      "best": {
+        "kernel_size": 9,
+        "test_mse": 0.18969273567199707,
+        "test_corr": 0.978355154467357
+      },
+      "candidates": [
+        {
+          "kernel_size": 5,
+          "test_mse": 0.2621400058269501,
+          "test_corr": 0.9651302093828205
+        },
+        {
+          "kernel_size": 9,
+          "test_mse": 0.18969273567199707,
+          "test_corr": 0.978355154467357
+        },
+        {
+          "kernel_size": 13,
+          "test_mse": 0.3622637391090393,
+          "test_corr": 0.969506002123363
+        },
+        {
+          "kernel_size": 17,
+          "test_mse": 0.7897409200668335,
+          "test_corr": 0.9234977677460119
+        },
+        {
+          "kernel_size": 25,
+          "test_mse": 1.9548723697662354,
+          "test_corr": 0.7292263422597216
+        },
+        {
+          "kernel_size": 33,
+          "test_mse": 2.8309874534606934,
+          "test_corr": 0.5184915787342058
+        },
+        {
+          "kernel_size": 41,
+          "test_mse": 3.173983335494995,
+          "test_corr": 0.425526909740205
+        },
+        {
+          "kernel_size": 51,
+          "test_mse": 3.3561317920684814,
+          "test_corr": 0.3801652656776703
+        }
+      ],
+      "note": "Uses the fixed carrier frequency stated by the task, then low-pass filters by moving average."
+    },
+    "table3_matched_no_hopf_integration": {
+      "baseline": "matched_dense_temporal_no_hopf",
+      "task": "integration",
+      "test_mse": 0.005050890147686005,
+      "val_mse": 0.0068319920904027585,
+      "test_corr": 0.7423375882955094,
+      "normalized_mse": 0.45130888476616005,
+      "relative_rmse": 0.671795269979002,
+      "epochs": 30,
+      "num_samples": 200,
+      "units": 20,
+      "channels": 48,
+      "temporal_kernel": 33
+    },
+    "table3_matched_no_hopf_differentiation": {
+      "baseline": "matched_dense_temporal_no_hopf",
+      "task": "differentiation",
+      "test_mse": 37.698081970214844,
+      "val_mse": 44.30131201543337,
+      "test_corr": 0.983687939403519,
+      "normalized_mse": 0.0347909657188306,
+      "relative_rmse": 0.18652336507480932,
+      "epochs": 30,
+      "num_samples": 200,
+      "units": 20,
+      "channels": 48,
+      "temporal_kernel": 33
+    }
+  },
+  "summary": [
+    {
+      "task": "Table 1 classification",
+      "oscillator_result": {
+        "CE saved": 0.5799999833106995,
+        "ramp supplement": 0.47,
+        "ramp article": 0.38
+      },
+      "non_oscillator_result": {
+        "FFT saved": 1.0,
+        "FFT supplement": 1.0,
+        "FFT article": 0.995
+      },
+      "local_winner": "non_oscillator_baseline"
+    },
+    {
+      "task": "Table 2 demodulation",
+      "oscillator_result": {
+        "DONN test_mse": 0.05674475058913231,
+        "DONN val_mse": 0.049821022897958755
+      },
+      "non_oscillator_result": {
+        "TemporalConv test_mse": 2.684044361114502,
+        "TemporalConv val_mse": 2.537003993988037,
+        "Matched no-Hopf test_mse": 0.2677001357078552,
+        "Matched no-Hopf val_mse": 0.2726181149482727,
+        "Coherent demod best test_mse": 0.18969273567199707,
+        "Coherent demod best corr": 0.978355154467357
+      },
+      "local_winner": "oscillator"
+    },
+    {
+      "task": "Table 3 operators",
+      "oscillator_result": {
+        "integration test_mse": 0.004002423025667667,
+        "differentiation test_mse": 19.65807342529297
+      },
+      "non_oscillator_result": {
+        "integration numeric_mse": 7.512718745716906e-12,
+        "differentiation numeric_mse": 0.00025585037656128407,
+        "integration matched no-Hopf test_mse": 0.005050890147686005,
+        "differentiation matched no-Hopf test_mse": 37.698081970214844
+      },
+      "local_winner": "non_oscillator_task_baseline"
+    },
+    {
+      "task": "Table 4 sentiment",
+      "oscillator_result": {
+        "DONN 1k1e test_acc": 0.525390625,
+        "DONN 2k2e test_acc": 0.5244140625
+      },
+      "non_oscillator_result": {
+        "BiLSTM 1k1e test_acc": 0.576171875
+      },
+      "local_winner": "non_oscillator_baseline"
+    }
+  ],
+  "overall_local_conclusion": "In the current local reproductions there is no broad empirical advantage for Hopf/oscillator layers. Simple non-oscillator baselines win Table 1, Table 3, and Table 4. Table 2 is the one local case where the current Hopf model beats the checked raw Conv1D, matched no-Hopf temporal readout, and known-carrier coherent demodulation baselines."
+}

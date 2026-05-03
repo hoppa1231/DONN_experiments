@@ -42,8 +42,8 @@
 
 ## Какие файлы он обычно создаёт
 
-- `artifacts/plots/fourth_work_paper_exact_summary_4k3e.png`
-- `artifacts/plots/fourth_work_paper_exact_metrics_4k3e.json`
+- `artifacts/plots/table4/fourth_work_paper_exact_summary_4k3e.png`
+- `artifacts/plots/table4/fourth_work_paper_exact_metrics_4k3e.json`
 
 В этих файлах лежит уже не локальная аппроксимация, а проверка более строгого
 Table 4 path.

@@ -1,0 +1,51 @@
+{
+  "variant": "strict_paper_table1_architecture",
+  "is_paper_architecture": true,
+  "dataset_source": "supplement-notebook",
+  "article_architecture": "Linear(20), Hopf(20), tanh(20), output(2)",
+  "paper_reported_accuracy": 0.99,
+  "test_loss": 0.12839870154857635,
+  "val_loss": 0.12854887545108795,
+  "accuracy_report": {
+    "acc_mean": 0.605,
+    "acc_sum": 0.605,
+    "acc_final": 0.56,
+    "acc_template_mse": 0.555,
+    "class_hist_true": [
+      96,
+      104
+    ],
+    "class_hist_mean": [
+      17,
+      183
+    ],
+    "class_hist_final": [
+      8,
+      192
+    ],
+    "class_hist_template_mse": [
+      7,
+      193
+    ]
+  },
+  "epochs": 20,
+  "batch_size": 32,
+  "seed": 42,
+  "learning_rate": 0.0001,
+  "clipnorm": 1.0,
+  "units": 20,
+  "min_omega_hz": 0.1,
+  "max_omega_hz": 20.0,
+  "hopf_input_scale": 0.1,
+  "mu": 1.0,
+  "beta": -100.0,
+  "samples_per_class": 500,
+  "num_steps": 1000,
+  "dt": 0.001,
+  "num_components": 5,
+  "assumptions": [
+    "Static layers are implemented as complex dense layers with split real/imag activation per Eq. (20).",
+    "The real part of the final complex output layer is compared to ramp targets.",
+    "The paper does not specify exact train/test split, batch size, optimizer settings, or seed."
+  ]
+}
